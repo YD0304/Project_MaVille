@@ -1,0 +1,17 @@
+[ {
+  "id" : 0,
+  "street" : "rue2",
+  "neigbourhood" : "rosemont",
+  "problemtype" : "TRAVAUX_GAZ_ELECTRICITE",
+  "description" : "des1",
+  "prioriteType" : null,
+  "contact" : "Name: Alex Tree, Phone: 111, Email: alextree@gmail.com"
+}, {
+  "id" : 0,
+  "street" : "www",
+  "neigbourhood" : "iii",
+  "problemtype" : "ENTRETIEN_PAYSAGER",
+  "description" : "frewrf",
+  "prioriteType" : null,
+  "contact" : "Name: Alex Tree, Phone: 111, Email: alextree@gmail.com"
+} ]

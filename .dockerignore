@@ -1,0 +1,18 @@
+# Ignore Maven build output
+target/
+
+# Ignore Git directory
+.git/
+.gitignore
+
+# Ignore IDE files
+.idea/
+*.iml
+.vscode/
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore documentation and other non-essential files
+README.md

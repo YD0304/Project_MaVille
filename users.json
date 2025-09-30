@@ -1,0 +1,13 @@
+[ {
+  "username" : "Alex123",
+  "password" : "password1",
+  "email" : "alextree@gmail.com",
+  "quartier" : "Rosemont",
+  "id" : 0,
+  "name" : "Alex Tree",
+  "street" : "Rue1",
+  "neighbourhood" : "Rosemont",
+  "phone" : "111",
+  "role" : "Resident",
+  "contact" : "Name: Alex Tree, Phone: 111, Email: alextree@gmail.com"
+} ]
