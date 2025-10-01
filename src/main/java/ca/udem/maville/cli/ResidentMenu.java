@@ -39,6 +39,7 @@ public class ResidentMenu {
                 case "2" -> handleViewUpcomingWorks();
                 case "3" -> handleViewFilterWorks();
                 case "4" -> handleReportProblem();
+                case "5" -> handleMyReportedProblems();
                 //case "5" -> handleNotifications(residentConnecte);
                 case "6" -> {
                     return;
@@ -158,7 +159,26 @@ public class ResidentMenu {
         } catch (Exception e) {
             System.out.println("❌ Error while reporting the problem: " + e.getMessage());
         }
-    }}
+    }
+
+    private void handleMyReportedProblems() {
+        System.out.println("\n--- My Reported Problems ---");
+        try {
+            List<Problem> problems = mavilleRestClient.getMyReportedProblems(resident);
+            if (problems.isEmpty()) {
+                System.out.println("You have not reported any problems yet.");
+            } else {
+                System.out.println("Total of " + problems.size() + " problems reported:");
+                System.out.println("---------------------------------");
+                problems.forEach(System.out::println);
+            }
+        } catch (Exception e) {
+            System.out.println("Error while retrieving your reported problems: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+    
 
     /**
     private void handleNotifications(Resident resident) {

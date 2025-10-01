@@ -14,8 +14,8 @@ import ca.udem.maville.enums.StatutProjet;
 import ca.udem.maville.model.Candidature;
 import ca.udem.maville.model.Prestataire; // Ensure this is the correct package for the Problem class
 import ca.udem.maville.model.Problem; // Ensure this is the correct package for the Candidature class
+import ca.udem.maville.model.Work;
 import ca.udem.maville.repository.CandidatureProjetRepository;
-import ca.udem.maville.repository.PrestataireDAO;
 import ca.udem.maville.repository.ProblemRepository;
 import ca.udem.maville.repository.WorkRepository;
 
@@ -23,14 +23,14 @@ import ca.udem.maville.repository.WorkRepository;
 public class ServiceProject { 
     private final ProblemRepository problems;
     private final CandidatureProjetRepository candidatureDAO;
-    private final PrestataireDAO prestataireDAO;
+    private final WorkRepository workRepository;
 
     public ServiceProject(ProblemRepository problems,
             CandidatureProjetRepository candidatureDAO,
-            PrestataireDAO prestataireDAO) {
+            WorkRepository workRepository) {
         this.problems = problems;
         this.candidatureDAO = candidatureDAO;
-        this.prestataireDAO = prestataireDAO;
+        this.workRepository = workRepository;
     }
 
    public Candidature submitProposalForProblem(int problemId, String title, String description,
@@ -66,69 +66,70 @@ public class ServiceProject {
         return candidatureDAO.findByServiceProviderId(serviceProvider);
     }
 
-    public boolean updateProjectStatus(int projetId, Prestataire serviceProvider, StatutProjet newStatus) {
-        List<work> candidatures = viewMyProposals(serviceProvider);
-        Optional<Candidature> existing = candidatures.stream()
-                .filter(c -> c.getId() == projetId)
-                .findFirst();
-        if (existing.isPresent()) {
-            Candidature candidature = existing.get();
-            candidature.setStatus(newStatus);
-            candidatureDAO.save(candidature);
-            return true;
+
+    public Work updateWorkStatus(int projetId, Prestataire serviceProvider, StatutProjet newStatus) {
+        Optional<Work> optional = workRepository.findById(projetId);
+        if (optional.isPresent()) {
+            Work work = optional.get();
+            if (!"LOCAL_PROJECT".equals(work.getSource())) {
+                return null;
+            }
+            if (!work.getServiceProvider().equals(serviceProvider.getNomEntreprise())) {
+                return null; 
+            }
+            work.setStatus(newStatus);
+            workRepository.update(work);
+            return work;
         }
-        return false;
+        return null;
     }
 
-    public boolean updateProjectDescription(int projetId, Prestataire serviceProvider, String newDescription) {
-        List<Candidature> candidatures = viewMyProposals(serviceProvider);
-        Optional<Candidature> existing = candidatures.stream()
-                .filter(c -> c.getId() == projetId)
-                .findFirst();
-        if (existing.isPresent()) {
-            Candidature candidature = existing.get();
-            candidature.setDescription(newDescription);
-            candidatureDAO.save(candidature);
-            return true;
+    
+
+    public Work updateWorkDescription(int projetId, Prestataire serviceProvider, String newDescription) {
+        Optional<Work> optional = workRepository.findById(projetId);
+        if (optional.isPresent()) {
+            Work work = optional.get();
+            if (!"LOCAL_PROJECT".equals(work.getSource())) {
+                return null; // cannot update API work
+            }
+
+            if (!work.getServiceProvider().equals(serviceProvider.getNomEntreprise())) {
+                return null; // only the prestataire owner can modify
+            }
+            work.setDescription(newDescription);
+            workRepository.update(work);
+            return work;
         }
-        return false;
-
+        return null;
     }
-
-    public boolean updateProjectEndDate(int projetId, Prestataire serviceProvider, String newDate) {
-    if (newDate == null || newDate.isEmpty()) {
-        return false;
-    }
+    
+    public Work updateWorktEndDate(int projetId, Prestataire serviceProvider, String newDate) {
     // Valider le format de date
     try {
         LocalDate endDate = LocalDate.parse(newDate);
         
-        List<Candidature> candidatures = viewMyProposals(serviceProvider);
-        Optional<Candidature> existing = candidatures.stream()
-            .filter(c -> c.getId() == projetId)
-            .findFirst();
-            
-        if (existing.isPresent()) {
-            Candidature candidature = existing.get();
-            
-            // Vérifier que la date de fin est après la date de début
-            LocalDate startDate = LocalDate.parse(candidature.getStartDate());
-            if (endDate.isBefore(startDate)) {
-                return false;
+        Optional<Work> optional = workRepository.findById(projetId);
+        if (optional.isPresent()) {
+            Work work = optional.get();
+            if (!"LOCAL_PROJECT".equals(work.getSource())) {
+                return null; // cannot update API work
             }
-            
-            candidature.setEndDate(newDate);
-            candidatureDAO.save(candidature);
-            
-            // Notifier les résidents abonnés
-            // serviceNotification.notifierMiseAJourProjet(candidature);
-            
-            return true;
+
+            if (!work.getServiceProvider().equals(serviceProvider.getNomEntreprise())) {
+                return null; // only the prestataire owner can modify
+            }
+            LocalDate startDate = work.getStartDate();
+            if (endDate.isBefore(startDate)) {
+                return null; // end date must be after start date
+            }
+            work.setEndDate(endDate);
+            workRepository.update(work);
+            return work;
         }
     } catch (DateTimeParseException e) {
-        return false;
     }
-    return false;
+    return null;
 }
 
     ///////////STPM/////////////////////////
@@ -139,19 +140,23 @@ public class ServiceProject {
         return projects != null ? projects : Collections.emptyList();
     }
 
-    public Work proposalEvaluation(int projectId, boolean accepter) {
-        Candidature projet = candidatureDAO.findById(projectId);
-        if (projet == null) {
-            return ;
-        }
+    public Work proposalEvaluation(int projectId, StatutProjet status) {
+        Candidature project = candidatureDAO.findById(projectId);
+        if (project == null) {
+            return null;
+            }
         
-        if (projet.getStatus() != StatutProjet.PROPOSAL_SUBMITED) {
-            return false;
-        }
-        
-        projet.setStatus(StatutProjet.PROPOSAL_ACCEPTED);
-        candidatureDAO.save(projet);
-        WorkRepository.getInstance().addWork(Work.fromProject(projet));
-        return;
+        if (project.getStatus() != StatutProjet.PROPOSAL_SUBMITED) {
+            return null; // Only proposals in SUBMITED status can be evaluated
+            }
+        project.setStatus(status);
+        Work.fromProject(project);
+        workRepository.updateAndGetAllWork(); // Ajouter le projet aux travaux
+        candidatureDAO.deleteById(projectId);
+        return Work.fromProject(project);
     }
-}
+    
+    public List<Candidature> viewAllProposals() {
+        List<Candidature> projects = candidatureDAO.getAllCandidatures();
+        return projects != null ? projects : Collections.emptyList();
+    }}

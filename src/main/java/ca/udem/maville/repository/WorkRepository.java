@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 
@@ -138,9 +139,24 @@ public class WorkRepository {
                 .collect(Collectors.toList());
     }
 
-    public List<Work> findByPrestataireId(int prestataireId) {
+    public List<Work> findByPrestataireName(String prestataireName) {
         return works.stream()
-                .filter(work -> work.getServiceProvider() != null && work.getServiceProvider().getId() == prestataireId)
+                .filter(work -> work.getServiceProvider() != null && work.getServiceProvider() == prestataireName)
                 .collect(Collectors.toList());
     }
+
+    public Optional<Work> findById(int id) {
+        return works.stream()
+                .filter(work -> work.getId() == id)
+                .findFirst();
+    }
+
+    public void update(Work work) {
+        // replace existing work in memory
+        works.removeIf(w -> w.getId() == work.getId());
+        works.add(work);
+    
+        saveWorks(); // persist only modified state
+    }
+    
 }

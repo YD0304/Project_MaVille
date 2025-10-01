@@ -51,7 +51,7 @@ public class Work {
             LocalDate.parse(project.getEndDate()),
             project.getStatus(),
             "LOCAL_PROJECT",
-            project.getPrestataireContact()
+            project.getPrestataire().getNomEntreprise()
         );
     }
     
@@ -100,10 +100,8 @@ public class Work {
     public void setStatus(StatutProjet status) { this.status = status; }
     
     public String getSource() { return source; }
-    public void setSource(String source) { this.source = source; }
     
     public String getServiceProvider() { return serviceProvider; }
-    public void setServiceProvider(String serviceProvider) { this.serviceProvider = serviceProvider; }
 
     @Override
     public String toString() {

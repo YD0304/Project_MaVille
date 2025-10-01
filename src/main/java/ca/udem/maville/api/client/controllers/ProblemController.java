@@ -21,7 +21,6 @@ public class ProblemController {
     public ProblemController(ServiceProblem serviceProblem) {
         this.serviceProblem = serviceProblem;
     }
-
     @PostMapping("/report_problem")
     public void reportProblem() {
         }
@@ -29,7 +28,6 @@ public class ProblemController {
     @GetMapping("/my_reported_problems")
     public ResponseEntity<List<Problem>> viewMyProblems(@RequestParam Resident resident) {
         return ResponseEntity.ok(serviceProblem.viewMyProblems(resident));
-
         }
 
     @GetMapping("/all_reported_problems")

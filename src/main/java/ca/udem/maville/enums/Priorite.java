@@ -1,5 +1,5 @@
 package ca.udem.maville.enums;
 
 public enum Priorite {
-    NOT_ASSIGNED, FAIBLE, MOYENNE, ELEVEE
+    NOT_ASSIGNED, REFUSED, FAIBLE, MOYENNE, ELEVEE
 }
