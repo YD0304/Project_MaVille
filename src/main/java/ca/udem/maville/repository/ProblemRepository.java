@@ -1,102 +1,45 @@
 package ca.udem.maville.repository;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import ca.udem.maville.model.Priorite;
 import ca.udem.maville.model.Problem;
+import ca.udem.maville.model.WorkType;
 
 @Repository
-public class ProblemRepository {
-    private static final String FILE_PATH = "problemes.json";
-    private ObjectMapper objectMapper;
-    private List<Problem> problems;
-    private int problemIdCounter = 1;
+public interface ProblemRepository extends JpaRepository<Problem, Long> {
 
-    public ProblemRepository() {
-        this.objectMapper = new ObjectMapper();
-        this.problems = new ArrayList<>();
-        loadProblemsFromFile(); // Actually load from file
-    }
+    // Used by ServiceProblem.viewMyProblems()
+    List<Problem> findByResidentId(Long residentId);
 
-    /**
-     * Load problems from JSON file
-     */
-    private void loadProblemsFromFile() {
-        try {
-            File file = new File(FILE_PATH);
-            if (file.exists()) {
-                problems = objectMapper.readValue(file, 
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Problem.class));
-                // Update counter based on existing problems
-                problemIdCounter = problems.stream()
-                    .mapToInt(Problem::getId)
-                    .max()
-                    .orElse(0) + 1;
-            }
-        } catch (IOException e) {
-            System.err.println("Error loading problems from JSON: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+    // Used by ServiceProblem.viewProblemsNotAssigned()
+    List<Problem> findByPrioriteType(Priorite prioriteType);
 
-    public List<Problem> getAllProblems() {
-        return new ArrayList<>(problems);
-    }
+    // Used by ServiceProblem.viewProblemsAssigned()
+    //   → all problems that are neither NOT_ASSIGNED nor REFUSED
+    List<Problem> findByPrioriteTypeNotAndPrioriteTypeNot(Priorite p1, Priorite p2);
 
-    private void saveProblems() {
-        try {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(new File(FILE_PATH), problems);
-        } catch (IOException e) {
-            System.err.println("Error saving problems to JSON: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+    // Optional filters used by admin / provider views
+    @EntityGraph(attributePaths = {"resident"})
+    @Query("SELECT p FROM Problem p WHERE p.prioriteType != ca.udem.maville.model.Priorite.NOT_ASSIGNED" +
+           " AND (:type IS NULL OR p.type = :type)")
+    List<Problem> findNonAssignedWithFilters(@Param("type") WorkType type);
 
-    public void addProblem(Problem problem) {
-        // Assign ID if not set
-        if (problem.getId() <= 0) {
-            problem.setId(problemIdCounter++);
-        }
-        problems.add(problem);
-        saveProblems();
-    }
+    @EntityGraph(attributePaths = {"resident"})
+    List<Problem> findByType(WorkType type);
 
-    public void updateProblem(Problem problem) {
-        if (problem.getId() <= 0) {
-            problem.setId(problemIdCounter++);
-        } else {
-            problemIdCounter = Math.max(problemIdCounter, problem.getId() + 1);
-        }
-        
-        findById(problem.getId()).ifPresent(problems::remove);
-        addProblem(problem);
-    }
+    @EntityGraph(attributePaths = {"resident"})
+    List<Problem> findByNeighbourhood(String neighbourhood);
 
-    public void deleteProblem(int id) {
-        problems.removeIf(p -> p.getId() == id);
-        saveProblems();
-    }
+    @EntityGraph(attributePaths = {"resident"})
+    @Query("SELECT p FROM Problem p WHERE p.resident.email = :email")
+    List<Problem> findByResidentEmail(@Param("email") String email);
 
-    public Optional<Problem> findById(int id) {
-        return problems.stream()
-                .filter(p -> p.getId() == id)
-                .findFirst();
-    }
 
-    public List<Problem> findByResident(int residentId) {
-        List<Problem> result = new ArrayList<>();
-        for (Problem p : problems) {
-            if (p.getResident().getId() == residentId) {
-                result.add(p);
-            }
-        }
-        return result;
-    }
 }

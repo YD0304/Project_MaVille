@@ -77,10 +77,10 @@ public class MontrealAPIWork {
     }
 
     public String getTitle() {
-        return "Travaux ID: " + id + " dans l'arrondissement " + boroughId + " sur " + occupancy_name;
+        return  reasonCategory + " dans l'arrondissement " + boroughId + " par " + occupancy_name;
     }
     public String getDescription() {
-        return "Travaux dans l'arrondissement " + boroughId + "sur "+ occupancy_name + " par " + organizationName +
+        return "Travaux dans l'arrondissement " + boroughId + "par "+ occupancy_name + " par " + organizationName +
                 " pour " + reasonCategory + ". Statut: " + currentStatus;
     }
 

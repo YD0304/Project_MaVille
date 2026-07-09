@@ -1,13 +1,35 @@
 [ {
-  "username" : "Alex123",
-  "password" : "password1",
-  "email" : "alextree@gmail.com",
-  "quartier" : "Rosemont",
-  "id" : 0,
-  "name" : "Alex Tree",
-  "street" : "Rue1",
-  "neighbourhood" : "Rosemont",
-  "phone" : "111",
+  "username" : "1",
+  "password" : "1",
+  "email" : "tt",
+  "neighbourhood" : "tt",
+  "id" : 1,
+  "name" : "1",
+  "phone" : "42",
   "role" : "Resident",
-  "contact" : "Name: Alex Tree, Phone: 111, Email: alextree@gmail.com"
+  "contact" : "Name: 1, Phone: 42, Email: tt",
+  "quartier" : "tt"
+}, {
+  "username" : "2",
+  "password" : "2",
+  "email" : "tt",
+  "neighbourhood" : "ww",
+  "id" : 2,
+  "nomEntreprise" : "twew",
+  "numeroEntreprise" : "3243",
+  "role" : "Prestataire",
+  "contact" : "Entreprise: twew, Numero: 3243, Email: tt",
+  "submitterCategory" : null,
+  "quartier" : "ww"
+}, {
+  "username" : "oo",
+  "password" : "ooo",
+  "email" : "yoquw@gmail.com",
+  "neighbourhood" : "oop",
+  "id" : 3,
+  "name" : "sisi Dong",
+  "phone" : "76543",
+  "role" : "Resident",
+  "contact" : "Name: sisi Dong, Phone: 76543, Email: yoquw@gmail.com",
+  "quartier" : "oop"
 } ]

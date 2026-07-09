@@ -1,111 +1,106 @@
-package ca.udem.maville.model;
+// package ca.udem.maville.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+// import com.fasterxml.jackson.annotation.JsonCreator;
+// import com.fasterxml.jackson.annotation.JsonProperty;
+// import jakarta.persistence.*;
+// import java.util.List;
 
-import ca.udem.maville.enums.Priorite;
-import ca.udem.maville.enums.StatutProjet;
-import ca.udem.maville.enums.TravauxType;
+// @Entity
+// @Table(name = "candidatures")   // fixed table name
+// public class Candidature {
 
-public class Candidature {
-    private int id;
-    private String title;
-    @JsonIgnore
-    private Problem problem;
-    private String description;
-    private double cost;
-    private String startDate;
-    private String endDate;
-    private StatutProjet status;
-    private int reportedCount;
-    private Prestataire prestataire;
+//     @Id
+//     @GeneratedValue(strategy = GenerationType.IDENTITY)
+//     private int id;              // no more static counter
 
-    @JsonCreator
-    public Candidature(
-            @JsonProperty("id") int id,
-            @JsonProperty("title") String title, // Corrected from "titre"
-            @JsonProperty("problem") Problem problem,
-            @JsonProperty("description") String description,
-            @JsonProperty("cout") double cost,
-            @JsonProperty("dateDebut") String startDate,
-            @JsonProperty("dateFin") String endDate,
-            @JsonProperty("status") StatutProjet status,
-            @JsonProperty("prestataire") Prestataire prestataire) {
-        this.id = id;
-        this.title = title;
-        this.problem = problem;
-        this.description = description;
-        this.cost = cost;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.status = status;
-        this.prestataire = prestataire;
-    }
+//     private String title;
+//     private String description;
+//     private double cost;
+//     private String startDate;
+//     private String endDate;
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+//     @Enumerated(EnumType.STRING)
+//     private StatutProjet status;
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+//     private int reportedCount;
 
-    public Problem getProblem() { return problem; }
-    public void setProblem(Problem problem) { this.problem = problem; }
+//     // Relationships
+//     @ManyToOne(fetch = FetchType.LAZY)
+//     @JoinColumn(name = "problem_id")
+//     private Problem problem;
 
-    public TravauxType getProblemType() { return problem.getProblemtype(); }
+//     @ManyToOne(fetch = FetchType.LAZY)
+//     @JoinColumn(name = "prestataire_id")
+//     private Provider prestataire;
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+//     // JPA requires a no-arg constructor
+//     public Candidature() {}
 
-    public double getCost() { return cost; }
-    public void setCost(double cost) { this.cost = cost; }
+//     // Keep your @JsonCreator constructor, but remove manual ID assignment
+//     @JsonCreator
+//     public Candidature(@JsonProperty("title") String title,
+//                        @JsonProperty("description") String description,
+//                        @JsonProperty("cost") double cost,
+//                        @JsonProperty("startDate") String startDate,
+//                        @JsonProperty("endDate") String endDate,
+//                        @JsonProperty("status") StatutProjet status,
+//                        @JsonProperty("problem") Problem problem,
+//                        @JsonProperty("prestataire") Provider prestataire) {
+//         // Do NOT set id here – JPA will assign it
+//         this.title = title;
+//         this.description = description;
+//         this.cost = cost;
+//         this.startDate = startDate;
+//         this.endDate = endDate;
+//         this.status = status;
+//         this.problem = problem;
+//         this.prestataire = prestataire;
+//     }
 
-    public String getStartDate() { return startDate; }
-    public void setStartDate(String startDate) { this.startDate = startDate; }
+//     // Getters and setters (unchanged)
+//     public int getId() { return id; }
+//     public void setId(int id) { this.id = id; }
 
-    public String getEndDate() { return endDate; }
-    public void setEndDate(String endDate) { this.endDate = endDate; }
+//     public String getTitle() { return title; }
+//     public void setTitle(String title) { this.title = title; }
 
-    public StatutProjet getStatus() { return status; }
-    public void setStatus(StatutProjet status) { this.status = status; }
+//     public String getDescription() { return description; }
+//     public void setDescription(String description) { this.description = description; }
 
-    public Prestataire getPrestataire() { return prestataire;}
-    public void setPrestataire(Prestataire prestataire) { this.prestataire = prestataire; }
+//     public double getCost() { return cost; }
+//     public void setCost(double cost) { this.cost = cost; }
 
-    public String getPrestataireContact() {
-        return prestataire != null ? prestataire.getContact() : "Unknown";
-    }
+//     @JsonProperty("dateDebut")
+//     public String getStartDate() { return startDate; }
+//     public void setStartDate(String startDate) { this.startDate = startDate; }
 
-    public int getReportedCount(){
-        return reportedCount;
-    }
+//     @JsonProperty("dateFin")
+//     public String getEndDate() { return endDate; }
+//     public void setEndDate(String endDate) { this.endDate = endDate; }
 
-    public String getLocation() {
-        if (problem != null) {
-            return problem.getNeigbourhood() + ", " + problem.getStreet();
-        }
-        return "Unknown";
-    }
+//     public StatutProjet getStatus() { return status; }
+//     public void setStatus(StatutProjet status) { this.status = status; }
 
-    public Priorite getPriority() {
-        return problem != null ? problem.getPrioriteType() : null;
-    }
+//     public int getReportedCount() { return reportedCount; }
+//     public void setReportedCount(int reportedCount) { this.reportedCount = reportedCount; }
 
-    public TravauxType getWorkType() {
-        return problem != null ? problem.getProblemtype() : null;
-    }
+//     public Problem getProblem() { return problem; }
+//     public void setProblem(Problem problem) { this.problem = problem; }
 
-    @Override
-    public String toString() {
-        return "ID: " + id +
-               ", Title: " + title +
-               ", Location: " + getLocation() +
-               ", Status: " + status +
-               ", Priority: " + getPriority() +
-               ", Work Type: " + getWorkType() +
-               ", Reports: " + getReportedCount() +
-               ", Start: " + startDate +
-               ", End: " + endDate +
-               ", Prestataire: " + prestataire;
-    }
-}
+//     public Provider getPrestataire() { return prestataire; }
+//     public void setPrestataire(Provider prestataire) { this.prestataire = prestataire; }
+
+//     // Remove synchroniserCompteurId() entirely
+
+//     public boolean peutEtreModifiee() {
+//         return status == StatutProjet.PROPOSAL_SUBMITED;
+//     }
+
+//     @Override
+//     public String toString() {
+//         return "Candidature #" + id + " par " + 
+//                (prestataire != null ? prestataire.getCompanyName() : "N/A") + 
+//                " - " + cost + "$ (" + 
+//                (status != null ? status : "N/A") + ")";
+//     }
+// }

@@ -1,159 +1,265 @@
-# MaVille
+# MaVille — Gestion des Travaux Publics de Montréal
 
-## Description du Projet 
-`MaVille` est une application de simulation en ligne de commande conçue pour gérer les signalements de problèmes civils et les projets de travaux publics dans la ville de Montréal. Elle facilite l'interaction entre trois types d'utilisateurs : les **Résidents**, qui signalent les problèmes et suivent les travaux ; les **Prestataires de services**, qui soumissionnent sur des projets pour résoudre ces problèmes ; et le **STPM** (Service Technique de la Ville), qui supervise, priorise et approuve les projets. L'application utilise des données initiales pour simuler un environnement de travail réaliste et est entièrement contrôlée via le terminal via command-line interface (CLI)) ou le web via graphical user interface (GUI). 
+> Full-stack application connecting residents, service providers, and city agents for civic issue management and public works oversight in Montreal.
 
----
-
-## Fonctionnalités 
-
-L'application offre des menus et des fonctionnalités spécifiques pour chaque profil d'utilisateur.
-
-### Profil Résident
-* **Signaler un problème**: Permet aux résidents de signaler un nouveau problème.
-* **Consulter les travaux**: Offre deux options de consultation :
-    * Une option pour appeler l'**API externe** de la Ville de Montréal et voir les travaux publics réels, avec des options de filtrage.
-    * Une option pour consulter les projets internes gérés par l'application.
-* **Gérer les notifications**: Un système de notification et d'abonnement permet aux résidents de recevoir des alertes et de gérer leurs abonnements.
-
-### Profil Prestataire 
-* **Sélection de profil**: Permet à l'utilisateur de choisir parmi une liste de prestataires prédéfinis pour agir en leur nom.
-* **Consulter les projets disponibles**: Affiche une liste de projets en attente de soumission.
-* **Soumettre une candidature**: Permet à un prestataire de soumissionner pour un projet disponible.
-* **Mettre à jour un projet**: Une fois une candidature acceptée, le prestataire peut mettre à jour le statut de son projet.
-
-### Profil STPM 
-* **Visualiser et prioriser les problèmes**: Le STPM peut voir tous les problèmes signalés et leur affecter un niveau de priorité.
-* **Évaluer les candidatures**: Le STPM peut consulter les candidatures soumises et choisir de les "Approuver" ou de les "Refuser".
-  
----
-
-## Structure du Projet 
-
-Le projet est organisé selon une architecture à couches pour séparer les responsabilités :
-* `ca.udem.maville.cli`: Contient l'interface utilisateur en ligne de commande (CLI). Cette couche permet aux utilisateurs d’interagir avec l’application via le terminal.
-* `ca.udem.maville.gui`: Contient l’interface graphique (GUI) permettant une interaction visuelle plus conviviale. Elle inclut les fenêtres, panneaux et composants graphiques.
-* `ca.udem.maville.metier`: Regroupe la logique métier de l’application, souvent appelée les « Services ». Cette couche orchestre les règles métier, les traitements et la coordination entre les données et la présentation.
-* `ca.udem.maville.donnees`: Contient les DAO (Data Access Objects), qui gèrent la lecture, l’écriture et la persistance des données. Elle encapsule les interactions avec les fichiers JSON ou d’autres sources de données.
-* `ca.udem.maville.model`: La couche de modèle, qui définit les structures de données (classes modèles) utilisées dans tout le projet,
-* `ca.udem.maville.api`: Regroupe les classes pour la communication avec des services externes ou pour exposer une API REST (serveur et client).
-* `ca.udem.maville.Main`: La classe principale qui initialise l’application. Elle configure les différentes couches selon le mode choisi (CLI, GUI, serveur) et démarre le système.
-
+![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=java&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.1.4-6DB33F?logo=spring&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![WebSocket](https://img.shields.io/badge/WebSocket-STOMP-010101?logo=socket.io)
+![JWT](https://img.shields.io/badge/Auth-JWT-black?logo=jsonwebtoken)
 
 ---
 
-## Comment Utiliser 
+## Overview
 
-Ce projet est géré par **Apache Maven**. Vous n'avez plus besoin d'utiliser `javac` manuellement.
+MaVille is a three-role platform that streamlines the lifecycle of civic issue management: residents report problems, service providers bid on solutions, and STPM agents prioritize, assign, and supervise projects. Built with a modern full-stack architecture and real-time capabilities.
 
-### Prérequis 
-* **Java Development Kit (JDK)**: Version 17 ou supérieure.
-* **Apache Maven**: Doit être installé et configuré dans les variables d'environnement de votre système.
+**Roles:**
+- 👤 **Resident** — Report problems, track public works, subscribe to neighbourhoods/streets, receive real-time notifications
+- 🛠️ **Service Provider** — Browse problem sheets, submit proposals, manage ongoing projects, subscribe to relevant categories
+- 🏛️ **STPM Agent** — Monitor signals in real time, assign priorities, review proposals, accept/reject with reasoning, link signals to existing problem sheets
 
-### Compilation 
-1.  Ouvrez un terminal (ou PowerShell).
-2.  Naviguez vers le **répertoire racine** de votre projet (le dossier qui contient le fichier `pom.xml`).
-3.  Exécutez la commande Maven suivante :
-    ```bash
-    mvn clean compile
-    ```
+---
 
-### Exécution 
-1.  Assurez-vous d'être toujours dans le **répertoire racine** du projet.
-2.  Exécutez la commande suivante pour lancer le serveur
-    Rester dans cette étape pour GUI interface (GUI lance avec la demarage du serveur) :
-    ```bash
-    mvn exec:java -Dexec.mainClass="ca.udem.maville.Main"
-    ```
-4. Ensuite exécutez la commande suivante pour lancer l'application CLI interface) :
-    ```bash
-    mvn exec:java -Dexec.mainClass="ca.udem.maville.Main" -Dexec.args="--cli"
-    ```
-### Exemple d'utilisation de la fonctionnalité API 
-Pour tester la fonctionnalité qui appelle l'API externe de la Ville de Montréal, suivez ces étapes :
-1.  Lancez l'application avec la commande `mvn exec:java...` ci-dessus.
-2.  Au menu principal, choisissez l'option **`1`** pour le `Profil Résident`.
-3.  L'application vous présentera une liste de résidents. Choisissez-en un (par exemple, entrez **`1`**).
-4.  Dans le menu résident, choisissez l'option **`1`** pour `Consulter les travaux en cours (API Ville de Montréal)`.
-5.  L'application vous proposera des options de recherche. Choisissez **`1`** pour lister les travaux les plus récents.
-6.  Le système affichera "Chargement des données..." puis la liste des travaux récupérés directement depuis l'API externe.
+## Tech Stack
 
-## Tests et Rapport de Couverture de Code
-Nous avons intégré JaCoCo, un outil standard de l'industrie, pour mesurer l'efficacité de nos tests unitaires et garantir la qualité du code.
+| Layer | Technology |
+|---|---|
+| **Backend** | Java 17, Spring Boot 3.1.4, Spring Security, Spring Data JPA, Spring WebSocket |
+| **Frontend** | React 19, Vite 8, React Router v7, StompJS + SockJS, Lucide Icons |
+| **Database** | PostgreSQL |
+| **External API** | Montreal Open Data (`donnees.montreal.ca`) — real public works data |
+| **Auth** | JWT (stateless), role-based access control |
+| **Real-time** | STOMP over WebSocket with JWT-authenticated channels |
+| **Deployment** | Docker, multi-stage build |
+| **Testing** | JaCoCo code coverage, Maven `verify` lifecycle |
+| **Client** | OkHttp-based REST client + CLI and Swing GUI modes |
 
-### **Comment Générer le Rapport JaCoCo**
+---
 
-Pour générer vous-même le rapport de couverture de test, exécutez la commande Maven suivante à la racine du projet :
+## Architecture
 
+### Backend Layered Design
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   Controllers (REST)                 │
+│  Auth │ Problem │ Project │ Subscription │ Travaux   │
+│  Notification │ Provider │ Resident                  │
+└──────────────┬──────────────────────────────────────┘
+               │
+┌──────────────▼──────────────────────────────────────┐
+│                  Services (Business Logic)           │
+│  ServiceProblem │ ProjectService │ NotificationService│
+│  WebSocketNotificationService                       │
+└──────────────┬──────────────────────────────────────┘
+               │
+┌──────────────▼──────────────────────────────────────┐
+│          Data Access (JPA Repositories)              │
+│  ProblemRepository │ ProjectRepository │ ...          │
+└──────────────┬──────────────────────────────────────┘
+               │
+        ┌──────▼──────┐
+        │  PostgreSQL  │
+        └─────────────┘
+```
+
+### Key Design Decisions
+
+- **Stateless JWT Authentication** — Spring Security filter chain validates tokens on every request; no session state
+- **WebSocket with JWT** — Custom `ChannelInterceptor` validates JWT on STOMP `CONNECT` frame via `X-Authorization` header
+- **Open Session In View** — Lazy-loading of JPA associations during serialization without `@Transactional` on every controller
+- **Multi-mode Client** — `MavilleRestClient` (OkHttp) shared between Swing GUI and CLI; React frontend uses native `fetch`
+
+### Real-Time Notification Flow
+
+```
+Resident reports a problem
+        │
+        ▼
+NotificationService.save()
+        │
+        ▼
+WebSocketNotificationService.push()
+        │
+        ▼
+SimpMessagingTemplate.convertAndSend()
+        │
+        ├──► /topic/notifications/resident/{email}
+        └──► /topic/notifications/admin/{email}
+```
+
+---
+
+## Features by Role
+
+### Resident
+- Report a problem in their neighbourhood (street, type, description)
+- View all current & upcoming public works in Montreal (from internal DB or Montreal Open Data API)
+- Filter projects by neighbourhood, work type, and priority
+- Subscribe to specific neighbourhoods or streets for real-time alerts
+- Real-time push notifications for new/updated projects in subscribed areas
+- Dashboard with personal stats (signal count, nearby projects, active subscriptions)
+
+### Service Provider
+- Browse all problem sheets created by STPM agents
+- Submit a proposal (bid) on a problem sheet
+- Real-time tracking of STPM decision (accept/reject with reason)
+- View and manage all assigned projects (modify description, dates, status transitions)
+- Subscribe to neighbourhoods or problem types for resident signal alerts
+- Real-time notifications for new problem sheets matching their subscriptions
+
+### STPM Agent
+- Real-time monitoring of all resident signals with summary statistics
+- Assign a priority level (HIGH / MEDIUM / LOW) to create a problem sheet
+- Refuse signals with optional reason
+- **Link a raw signal to an existing problem sheet** (merge related reports)
+- Review all provider proposals in real time
+- Accept a proposal (creates a project automatically)
+- Reject a proposal with a mandatory reason
+- Real-time notifications for every new signal and proposal submission
+
+---
+
+## API Endpoints
+
+### Authentication & Users
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/auth/login` | Authenticate, returns JWT |
+| GET | `/api/auth/me` | Current user profile |
+| GET | `/api/users/me` | Legacy identity endpoint |
+
+### Problems (Signals & Problem Sheets)
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/problems/report_problem` | Resident reports a problem |
+| GET | `/api/problems/my_reported_problems?residentId=` | Resident's own reports |
+| GET | `/api/problems/all_reported_problems` | All signals (admin) |
+| GET | `/api/problems/problems_not_assigned` | Unprocessed signals |
+| GET | `/api/problems/problems_assigned` | Prioritized problem sheets |
+| POST | `/api/problems/assign_problem_priority?problemId=&priorite=` | Assign priority |
+| POST | `/api/problems/link_signal?signalId=&parentProblemId=` | Link signal to existing sheet |
+
+### Projects (Proposals & Work Orders)
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/projects/submit` | Submit a proposal |
+| GET | `/api/projects/my-proposals?providerCompanyNumber=` | Provider's proposals |
+| GET | `/api/projects/submitted` | All submitted proposals (admin) |
+| POST | `/api/projects/{id}/accept` | Accept a proposal |
+| POST | `/api/projects/{id}/reject?reason=` | Reject with reason |
+| PUT | `/api/projects/{id}/description` | Update description |
+| PUT | `/api/projects/{id}/end-date` | Update end date |
+| PUT | `/api/projects/{id}/start` | Start work |
+| PUT | `/api/projects/{id}/delay` | Delay work |
+| PUT | `/api/projects/{id}/resume` | Resume delayed work |
+| PUT | `/api/projects/{id}/complete` | Complete with actual cost |
+| GET | `/api/projects/filter?neighbourhood=&type=&priority=&status=` | Multi-criteria filter |
+| GET | `/api/projects/my` | Authenticated user's projects |
+
+### Subscriptions & Notifications
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/subscriptions/residents` | Create resident subscription |
+| POST | `/api/subscriptions/providers` | Create provider subscription |
+| GET | `/api/subscriptions/residents?residentId=` | Resident subscriptions |
+| GET | `/api/subscriptions/providers?companyNumber=` | Provider subscriptions |
+| GET | `/api/notifications?userId=&userType=` | Get notifications |
+| GET | `/api/notifications/unread?userId=&userType=` | Unread count |
+| PUT | `/api/notifications/{id}/read` | Mark as read |
+
+### Montreal Open Data (Travaux)
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/travaux` | Fetch all public works from Montreal API |
+| GET | `/api/travaux/filter?filterKey=&filterValue=` | Filter external data |
+| DELETE | `/api/travaux` | Clear cached data |
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Java 17+
+- Node.js 18+ (for frontend)
+- Docker (optional)
+
+### Backend
+
+```bash
+# Compile
+mvn clean compile
+
+# Run server (Swing GUI also launches)
+mvn exec:java -Dexec.mainClass="ca.udem.maville.Main"
+
+# Run CLI mode (separate terminal)
+mvn exec:java -Dexec.mainClass="ca.udem.maville.Main" -Dexec.args="--cli"
+```
+
+### Frontend
+
+```bash
+cd maville-frontend
+npm install
+npm run dev     # Development server on port 5173
+npm run build   # Production build
+```
+
+### Docker
+
+```bash
+docker build -t maville-app .
+docker run -d -p 7070:7070 --name maville-container maville-app
+```
+
+---
+
+## Testing
 
 ```bash
 mvn clean verify
 ```
 
-Cette commande exécute l'ensemble du cycle de vie de construction, y compris la phase de test où les données de couverture sont collectées. Une fois la commande terminée avec succès (`BUILD SUCCESS`), le rapport sera généré.
+Generates a JaCoCo coverage report at `target/site/jacoco/index.html`.
 
-### **Comment Consulter le Rapport**
-
-Le rapport de couverture de test est un site web HTML interactif. Vous pouvez l'ouvrir avec n'importe quel navigateur web.
-
-- **Emplacement du rapport** : Le rapport se trouve dans le dossier `target` (qui est généré par la commande ci-dessus), à l'emplacement suivant :
-  ```
-  target/site/jacoco/index.html
-  ```
-
-### **Analyse du Rapport de Couverture Actuel**
-
-Le rapport généré montrera une couverture de test pour l'ensemble du projet. Voici une brève analyse de l'état actuel :
-
-ca.udem.maville.api.client (environ 12% de couverture) : La couverture a progressé et confirme que nos tests portent principalement sur cette couche, validant les interactions avec 
-les API externes, ce qui est un point central de l’application.
-
-ca.udem.maville.metier (autour de 28%) et ca.udem.maville.donnees (environ 11%) : Une amélioration notable par rapport aux versions précédentes montre que des tests commencent à couvrir la logique métier et la couche d’accès aux données, qui sont des composants essentiels.
-
-ca.udem.maville.model (environ 38%) : Cette progression suggère que des tests sont en place pour les classes de modèle, garantissant la validité des structures de données manipulées.
-
-Conclusion : L’infrastructure de tests est fonctionnelle et les résultats montrent un progrès réel, bien qu’une couverture globale de 8% reste insuffisante pour garantir la robustesse complète de l’application. Les prochaines étapes devront viser à étendre la couverture aux couches GUI et CLI, ainsi qu’à renforcer encore les tests sur les parties métier et données.
----
 ---
 
-## Comment Lancer avec Docker 
-Ce projet est entièrement conteneurisé avec Docker, ce qui simplifie grandement son déploiement.
+## Project Structure
 
-1.  **Prérequis**
-    - Assurez-vous d'avoir [Docker](https://www.docker.com/products/docker-desktop/) installé sur votre machine.
-
-2.  **Construisez l'image Docker :**
-    À la racine du projet, exécutez la commande suivante pour construire l'image :
-    ```bash
-    docker build -t maville-app .
-    ```
-
-3.  **Lancez le conteneur Docker :**
-    Une fois l'image construite, lancez un conteneur avec cette commande :
-    ```bash
-    docker run -d -p 7070:7070 --name maville-container maville-app
-    ```
-
-4.  **Accédez à l'application :**
-    Ouvrez votre navigateur web et allez à l'adresse [http://localhost:7070](http://localhost:7070).
-
-⚠️ Gestion des Ports
-Avant de lancer le conteneur, assurez-vous qu’aucun autre processus n’utilise le port 7070.
-Si le port est déjà occupé, vous pouvez :
-Identifier le processus utilisant le port :
- ```bash
-lsof -i :7070
 ```
-Terminer le processus (remplacez <PID> par l’identifiant affiché) :
-
-```bash
-kill -9 <PID>
+├── src/main/java/ca/udem/maville/
+│   ├── api/          # REST client (OkHttp) + Montreal API datasource
+│   ├── controller/   # REST controllers (Problem, Project, Subscription, etc.)
+│   ├── config/       # WebSocket config + STOMP auth interceptor
+│   ├── security/     # JWT auth, Spring Security, AuthController
+│   ├── services/     # Business logic (problem, project, notification)
+│   ├── model/        # JPA entities (Problem, Project, Resident, etc.)
+│   ├── repository/   # Spring Data JPA repositories
+│   ├── dto/          # Request/response DTOs
+│   ├── cli/          # Command-line interface
+│   └── gui/          # Swing graphical interface
+├── maville-frontend/ # React 19 + Vite frontend
+│   ├── src/pages/    # Role-based pages (resident/, admin/, provider/)
+│   ├── src/components/ # Reusable components (ProblemCard, Proposal, etc.)
+│   ├── src/context/  # AuthContext + WebSocketContext
+│   └── src/api/      # API client (fetch-based)
+├── Dockerfile
+└── pom.xml
 ```
-Relancer l’étape 2.
 
-Si le port est occupé par un ancien conteneur Docker, utilisez :
-```bash
-docker stop maville-container
-docker rm maville-container
-```
-Ensuite, relancez le conteneur.
+---
+
+## Highlights for Interviewers
+
+- **Full-stack proficiency** — Java/Spring Boot backend + React 19 frontend with Vite
+- **Real-time systems** — STOMP WebSocket with JWT-authenticated channels for live notifications
+- **External API integration** — Montreal Open Data REST API consumed and cached
+- **Role-based auth** — JWT with Spring Security, per-role API and UI access control
+- **Database design** — JPA entities with self-referencing relationships (problem hierarchy), enums for type safety
+- **Containerization** — Multi-stage Docker build for production deployment
+- **Multi-client architecture** — REST API consumed by React, Swing GUI, and CLI via shared `MavilleRestClient`
+- **CI-ready** — Maven lifecycle with JaCoCo test coverage reporting

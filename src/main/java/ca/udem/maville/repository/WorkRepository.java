@@ -1,162 +1,44 @@
-package ca.udem.maville.repository;
+// package ca.udem.maville.repository;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Repository;
+// import java.time.LocalDate;
+// import java.util.List;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+// import org.springframework.data.jpa.repository.EntityGraph;
+// import org.springframework.data.jpa.repository.JpaRepository;
+// import org.springframework.data.jpa.repository.Query;
+// import org.springframework.data.repository.query.Param;
+// import org.springframework.stereotype.Repository;
 
-import ca.udem.maville.enums.StatutProjet;
-import ca.udem.maville.enums.TravauxType;
-import ca.udem.maville.model.Work;
+// import ca.udem.maville.model.StatutProjet;
+// import ca.udem.maville.model.Work;
 
+// /**
+//  * Repository pour les projets
+//  * Optimisé avec @EntityGraph pour éviter les N+1 queries
+//  */
+// // ca.udem.maville.repository.WorkRepository
+// @Repository
+// public interface WorkRepository extends JpaRepository<Work, Long> {
 
-@Repository
-public class WorkRepository {
-    private final TravauxAPIRepository travauxAPIRepository;
-    private final CandidatureProjetRepository candidatureRepository;
+//     @Query("SELECT p FROM Work p WHERE p.provider.companyNumber = :neq")
+//     List<Work> findByProviderNeq(@Param("neq") String neq);
 
-    private static final String FILE_PATH = "work.json";
-    private ObjectMapper objectMapper;
-    private List<Work> works;
+//     @EntityGraph(attributePaths = {"provider", "problems"})
+//     List<Work> findByStatus(StatutProjet status);
 
-    public WorkRepository() {
-        this.travauxAPIRepository = new TravauxAPIRepository();
-        this.candidatureRepository = new CandidatureProjetRepository();
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.findAndRegisterModules(); // Support pour LocalDate
-        this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Formatage lisible
-        this.works = new ArrayList<>();
-        loadWorks(); // Charger les données existantes au démarrage
-    }
+//     @EntityGraph(attributePaths = {"provider", "problems"})
+//     @Query("SELECT DISTINCT p FROM Work p JOIN p.problems pr WHERE pr.id = :problemeId")
+//     List<Work> findByProblemeId(@Param("problemeId") Long problemeId);
 
-    /**
-     * Charge les travaux à partir du fichier JSON.
-     */
-    private void loadWorks() {
-        try {
-            File file = new File(FILE_PATH);
-            if (file.exists()) {
-                works = objectMapper.readValue(file, new TypeReference<List<Work>>() {});
-            }
-        } catch (IOException e) {
-            System.err.println("Erreur lors du chargement des travaux depuis le fichier JSON : " + e.getMessage());
-        }
-    }
+//     // --- Nouvelles méthodes ---
+//     List<Work> findByStartDateBetween(LocalDate start, LocalDate end);
 
-    /**
-     * Sauvegarde la liste de travaux dans un fichier JSON.
-     */
-    private void saveWorks() {
-        try {
-            objectMapper.writeValue(new File(FILE_PATH), works);
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la sauvegarde des travaux dans le fichier JSON : " + e.getMessage());
-        }
-    }
+//     List<Work> findByCategory(String category);
 
-    /**
-     * Met à jour et retourne tous les travaux à partir des sources de données.
-     * Les données sont également sauvegardées localement.
-     */
-    public List<Work> updateAndGetAllWork() {
-        List<Work> allWork = new ArrayList<>();
-        // Récupérer les travaux de l'API
-        travauxAPIRepository.filterTravauxExterneList(null,null).stream()
-                .map(Work::fromMontrealAPI)
-                .forEach(allWork::add);
+//     List<Work> findByNeighbourhood(String neighbourhood);
 
-        // Récupérer les travaux des candidatures locales
-        candidatureRepository.getAllCandidatures().stream()
-                .map(Work::fromProject)
-                .forEach(allWork::add);
+//     List<Work> findByStreet(String street);
 
-        this.works = allWork; // Mettre à jour la liste interne
-        saveWorks();          // Sauvegarder la nouvelle liste dans le fichier
-        
-        return new ArrayList<>(this.works);
-    }
-    
-    /**
-     * Récupère tous les travaux en mémoire.
-     */
-    public List<Work> getCachedWorks() {
-        return new ArrayList<>(works);
-    }
+//     List<Work> findByProviderCompanyName(String companyName);
+// }
 
-    /**
-     * Deletes all external (API) work from the repository.
-     */
-    public void deleteAllExternalWork() {
-        // Cette méthode doit maintenant mettre à jour la liste locale
-        works.removeIf(work -> "MONTREAL_API".equals(work.getSource()));
-        saveWorks(); // Sauvegarder la liste mise à jour
-    }
-
-    public List<Work> findByStatus(StatutProjet status) {
-        return works.stream()
-                .filter(work -> work.getStatus() == status)
-                .collect(Collectors.toList());
-    }
-
-    public List<Work> findByCategory(String type) {
-        return works.stream()
-                .filter(work -> work.getCategory() == type)
-                .collect(Collectors.toList());
-    }
-
-    public List<Work> findByNeighbourhood(String neighbourhood) {
-        return works.stream()
-                .filter(work -> work.getBorough() == neighbourhood)
-                .collect(Collectors.toList());
-    }
-
-    public List<Work> findByStreet(String street) {
-        return works.stream()
-                .filter(work -> work.getStreet() == street)
-                .collect(Collectors.toList());
-    }
-
-    public List<Work> findByDateBetween(LocalDate start, LocalDate end) {
-        return works.stream()
-                .filter(work -> work.getStartDate() != null)
-                .filter(work -> {
-                    try {
-                        LocalDate workDate = work.getStartDate();
-                        return (workDate.isEqual(start) || workDate.isAfter(start)) &&
-                               (workDate.isEqual(end) || workDate.isBefore(end));
-                    } catch (Exception e) {
-                        return false; // Ignore parsing errors
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
-    public List<Work> findByPrestataireName(String prestataireName) {
-        return works.stream()
-                .filter(work -> work.getServiceProvider() != null && work.getServiceProvider() == prestataireName)
-                .collect(Collectors.toList());
-    }
-
-    public Optional<Work> findById(int id) {
-        return works.stream()
-                .filter(work -> work.getId() == id)
-                .findFirst();
-    }
-
-    public void update(Work work) {
-        // replace existing work in memory
-        works.removeIf(w -> w.getId() == work.getId());
-        works.add(work);
-    
-        saveWorks(); // persist only modified state
-    }
-    
-}

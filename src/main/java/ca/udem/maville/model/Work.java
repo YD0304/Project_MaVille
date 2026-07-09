@@ -1,117 +1,151 @@
-package ca.udem.maville.model;
+// package ca.udem.maville.model;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
+// import java.time.LocalDate;
+// import java.time.LocalDateTime;
+// import java.util.ArrayList;
+// import java.util.List;
 
-import ca.udem.maville.enums.StatutProjet;
+// import jakarta.persistence.Entity;
+// import jakarta.persistence.EnumType;
+// import jakarta.persistence.Enumerated;
+// import jakarta.persistence.GeneratedValue;
+// import jakarta.persistence.GenerationType;
+// import jakarta.persistence.Id;
+// import jakarta.persistence.JoinColumn;
+// import jakarta.persistence.JoinTable;
+// import jakarta.persistence.ManyToMany;
+// import jakarta.persistence.ManyToOne;
+// import jakarta.persistence.OneToOne;
+// import jakarta.persistence.PreUpdate;
+// import jakarta.persistence.Table;
 
-// Unified Work model for displaying both Montreal API and local projects
-public class Work {
-    private int id;
-    private String title;
-    private String description;
-    private String category;
-    private String borough;
-    private String street;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private StatutProjet status;
-    private String source; // "MONTREAL_API" or "LOCAL_PROJECT"
-    private String serviceProvider;
-    
-    // Constructors
-    public Work() {}
-    
-    public Work(int id, String title, String description, String category, String borough, String street,
-                LocalDate startDate, LocalDate endDate, StatutProjet status, 
-                String source, String serviceProvider) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.category = category;
-        this.borough = borough;
-        this.street = street;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.status = status;
-        this.source = source;
-        this.serviceProvider = serviceProvider;
-    }
-    
-    // Static factory methods for easy creation
-    public static Work fromProject(Candidature project) {
-        return new Work(
-            project.getId(),
-            project.getTitle(),
-            project.getDescription(),
-            project.getProblemType().toString(),
-            project.getProblem().getNeigbourhood(),
-            project.getProblem().getStreet(),
-            LocalDate.parse(project.getStartDate()),
-            LocalDate.parse(project.getEndDate()),
-            project.getStatus(),
-            "LOCAL_PROJECT",
-            project.getPrestataire().getNomEntreprise()
-        );
-    }
-    
-    public static Work fromMontrealAPI(MontrealAPIWork apiWork) {
-        return new Work(
-            Integer.parseInt(apiWork.getId()),
-            apiWork.getTitle(),
-            apiWork.getDescription(),
-            apiWork.getReasonCategory(),
-            apiWork.getBoroughId(),
-            apiWork.getOccupancy_name(),
-            OffsetDateTime.parse(apiWork.getDuration_start_date()).toLocalDate(), // Ensure method name matches MontrealAPIWork
-            OffsetDateTime.parse(apiWork.getDuration_end_date()).toLocalDate(),
-            StatutProjet.fromApiValue(apiWork.getCurrentStatus()), // Use the pre-defined status variable
-            "MONTREAL_API",
-            apiWork.getOrganizationName()
-        );
-    }
-    
-    // Getters and setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+// @Entity
+// @Table(name = "works")
+// public class Work {
 
-    public String getBorough() { return borough; }
-    public void setBorough(String borough) { this.borough = borough; }
+//     @Id
+//     @GeneratedValue(strategy = GenerationType.IDENTITY)
+//     private Long id;
 
-    public String getStreet() { return street; }
-    public void setStreet(String street) { this.street = street; }
+//     private String title;
+//     private String description;
+//     private double cost;
 
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
-    
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-    
-    public StatutProjet getStatus() { return status; }
-    public void setStatus(StatutProjet status) { this.status = status; }
-    
-    public String getSource() { return source; }
-    
-    public String getServiceProvider() { return serviceProvider; }
+//     private WorkType category;          
+//     private String neighbourhood;
+//     private String street;
 
-    @Override
-    public String toString() {
-        return "---------------------------------\n" +
-            "ID: " + this.id + "\n" +
-            "Titre: " + this.title + "\n" +
-            "Emplacement: " + this.borough + " " + this.street+ "\n" +
-            "Statut: " + this.status + "\n" +
-            "Fournisseur de services: " + this.serviceProvider + "\n" +
-            "---------------------------------";
-    }
-}
+//     private LocalDate startDate;
+//     private LocalDate endDate;
 
+
+//     @Enumerated(EnumType.STRING)
+//     private StatutProjet status;
+
+//     @ManyToOne
+//     @JoinColumn(name = "prestataire_id")
+//     private Provider provider;
+
+//     @OneToOne
+//     @JoinColumn(name = "candidature_id")
+//     private Candidature candidature;   // candidature acceptée à l’origine du projet
+
+//     @ManyToMany
+//     @JoinTable(name = "work_problems",
+//                joinColumns = @JoinColumn(name = "work_id"),
+//                inverseJoinColumns = @JoinColumn(name = "problem_id"))
+//     private List<Problem> problems = new ArrayList<>();
+
+//     private LocalDateTime lastUpdate;
+
+//     // Constructeurs
+//     public Work() {}
+
+//     public Work(String title, String description, double cost,
+//                 LocalDate startDate, LocalDate endDate,
+//                 Provider provider, Candidature candidature) {
+//         this.title = title;
+//         this.description = description;
+//         this.cost = cost;
+//         this.startDate = startDate;
+//         this.endDate = endDate;
+//         this.provider = provider;
+//         this.candidature = candidature;
+//         this.status = StatutProjet.PERMIT_ISSUED;   // statut initial
+//         this.lastUpdate = LocalDateTime.now();
+//     }
+
+//     // Méthodes métier (logique de transition)
+
+//     public void start() {
+//         if (status == StatutProjet.PERMIT_ISSUED) {
+//             this.status = StatutProjet.PROJECT_ONGOING;
+//             this.startDate = LocalDate.now();
+//             this.lastUpdate = LocalDateTime.now();
+//         } else {
+//             throw new IllegalStateException("Projet ne peut démarrer depuis le statut " + status);
+//         }
+//     }
+
+//     public void suspend() {
+//         if (status == StatutProjet.PROJECT_ONGOING) {
+//             this.status = StatutProjet.PROJECT_DELAYED;
+//             this.lastUpdate = LocalDateTime.now();
+//         } else {
+//             throw new IllegalStateException("Seul un projet en cours peut être suspendu");
+//         }
+//     }
+
+//     public void resume() {
+//         if (status == StatutProjet.PROJECT_DELAYED) {
+//             this.status = StatutProjet.PROJECT_ONGOING;
+//             this.lastUpdate = LocalDateTime.now();
+//         } else {
+//             throw new IllegalStateException("Seul un projet suspendu peut être repris");
+//         }
+//     }
+
+//     public void complete() {
+//         if (status == StatutProjet.PROJECT_ONGOING) {
+//             this.status = StatutProjet.PROJECT_FINISHED;
+//             this.endDate = LocalDate.now();
+//             this.lastUpdate = LocalDateTime.now();
+//         } else {
+//             throw new IllegalStateException("Seul un projet en cours peut être terminé");
+//         }
+//     }
+
+
+//     // Auto-mise à jour avant toute modification persistée
+//     @PreUpdate
+//     protected void onUpdate() {
+//         this.lastUpdate = LocalDateTime.now();
+//     }
+
+//     // Getters et setters standards (tronqués pour lisibilité)
+//     public Long getId() { return id; }
+//     public void setId(Long id) { this.id = id; }
+//     public String getTitle() { return title; }
+//     public void setTitle(String title) { this.title = title; }
+//     public String getDescription() { return description; }
+//     public void setDescription(String description) { this.description = description; }
+//     public double getCost() { return cost; }
+//     public void setCost(double cost) { this.cost = cost; }
+//     public LocalDate getStartDate() { return startDate; }
+//     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+//     public LocalDate getEndDate() { return endDate; }
+//     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }   
+//     public StatutProjet getStatus() { return status; }
+//     public List<Problem> getProblems() { return problems; }
+//     public void setProblems(List<Problem> problems) { this.problems = problems; }
+//     public LocalDateTime getLastUpdate() { return lastUpdate; }
+
+//     public WorkType getCategory() { return category; }
+//     public void setCategory(WorkType category) { this.category = category; }
+
+//     public String getNeighbourhood() { return neighbourhood; }
+//     public void setNeighbourhood(String neighbourhood) { this.neighbourhood = neighbourhood; }
+
+//     public String getStreet() { return street; }
+//     public void setStreet(String street) { this.street = street; }
+// }

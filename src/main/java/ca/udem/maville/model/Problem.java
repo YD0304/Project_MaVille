@@ -1,81 +1,101 @@
 package ca.udem.maville.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDateTime;
 
-import ca.udem.maville.enums.Priorite;
-import ca.udem.maville.enums.TravauxType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "problems")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Problem {
-    private int id;
-    String street;
-    String neigbourhood;
-    private TravauxType problemtype;
+
+    // FIX 3: Changed int → Long to match JpaRepository<Problem, Long>
+    //        and the Long-typed findById / findByResidentId calls in the repository.
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String street;
+    private String neighbourhood;
+
+    @Enumerated(EnumType.STRING)
+    private WorkType type;
+
     private String description;
-    @JsonIgnore
-    private Resident resident;
+    private LocalDateTime reportTime;
+
+    @Enumerated(EnumType.STRING)
     private Priorite prioriteType;
 
-    public Problem() {
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resident_id")
+    private Resident resident;
 
-    public Problem(String street, String neigbourhood, TravauxType problemtype, String description) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_problem_id")
+    @JsonIgnoreProperties({"parentProblem", "childSignals"})
+    private Problem parentProblem;
+
+    public Problem() {}   // JPA no-arg
+
+    public Problem(String street, String neighbourhood, WorkType type, String description, Resident resident) {
         this.street = street;
-        this.neigbourhood = neigbourhood;
-        this.problemtype = problemtype;
+        this.neighbourhood = neighbourhood;
+        this.type = type;
         this.description = description;
-    }
-
-    public int getId() {
-        return id;
-    }
-    public String getStreet() {
-        return street;
-    }
-    public String getNeigbourhood() {
-        return neigbourhood;
-    }
-    public TravauxType getProblemtype() {
-        return problemtype;
-    }
-    public String getDescription() {
-        return description;
-    }
-    public Resident getResident() {
-        return resident;
-    }
-    public Priorite getPrioriteType() {
-        return prioriteType;
-    }
-
-
-    public void setId(int id) {
-        this.id = id;
-    }
-    public void setStreet(String street) {
-        this.street = street;
-    }
-    public void setNeigbourhood(String neigbourhood) {
-        this.neigbourhood = neigbourhood;
-    }
-    public void setProblemtype(TravauxType problemtype) {
-        this.problemtype = problemtype;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    public void setResident(Resident resident) {
         this.resident = resident;
-    }
-    public void setPrioriteType(Priorite prioriteType) {
-        this.prioriteType = prioriteType;
+        this.reportTime = LocalDateTime.now();
+        this.prioriteType = Priorite.NOT_ASSIGNED;
     }
 
-    public String getContact() {
-        return resident.getContact();
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getStreet() { return street; }
+    public void setStreet(String street) { this.street = street; }
+
+    public String getNeighbourhood() { return neighbourhood; }
+    public void setNeighbourhood(String neighbourhood) { this.neighbourhood = neighbourhood; }
+
+    public WorkType getType() { return type; }
+    public void setType(WorkType type) { this.type = type; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public LocalDateTime getReportTime() { return reportTime; }
+    public void setReportTime(LocalDateTime reportTime) { this.reportTime = reportTime; }
+
+    public Priorite getPrioriteType() { return prioriteType; }
+    public void setPrioriteType(Priorite prioriteType) { this.prioriteType = prioriteType; }
+
+    public Resident getResident() { return resident; }
+    public void setResident(Resident resident) { this.resident = resident; }
+
+    public Problem getParentProblem() { return parentProblem; }
+    public void setParentProblem(Problem parentProblem) { this.parentProblem = parentProblem; }
 
     @Override
     public String toString() {
-        return "ID: " + id + ", Quartier: " + neigbourhood + ", Rue: " + street + ", Type: " + problemtype + ", Priorité: " + prioriteType + ", Description: " + description + ", Contact: " + getContact();
+        return "---------------------------------\n" +
+            "Problem id=" + id + "\n" +
+            "Street: " + street + "\n" +
+            "Neighbourhood: " + neighbourhood + "\n" +
+            "Type: " + type + "\n" +
+            "Description: " + description + "\n" +
+            "Priority: " + prioriteType + "\n" +
+            "Resident: " + (resident != null ? resident.getNomComplet() : "None") + "\n" +
+            "---------------------------------\n";
     }
 }
