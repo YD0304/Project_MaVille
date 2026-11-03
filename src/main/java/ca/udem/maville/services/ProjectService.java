@@ -19,6 +19,7 @@ import ca.udem.maville.repository.ProblemRepository;
 import ca.udem.maville.repository.ProjectRepository;
 import ca.udem.maville.repository.ProviderRepository;
 import ca.udem.maville.repository.ResidentRepository;
+
 @Service
 public class ProjectService {
 
@@ -52,10 +53,11 @@ public class ProjectService {
 
         Project project = new Project(title, description, proposedCost,
                 proposedStartDate, proposedEndDate, problem, providerOpt.get());
-        notificationService.notifyResidentsAboutProject(project, ProjectEvent.CREATED);
-        notificationService.notifySTPM("New proposal submitted for problem " + problemId, project.getId());
-        
-        return projectRepository.save(project);
+        // Save first so project.getId() is populated before notifications
+        Project saved = projectRepository.save(project);
+        notificationService.notifyResidentsAboutProject(saved, ProjectEvent.CREATED);
+        notificationService.notifySTPM("New proposal submitted for problem " + problemId, saved.getId());
+        return saved;
     }
 
     public List<Project> getMyProposals(String providerCompanyNumber) {
@@ -88,11 +90,9 @@ public class ProjectService {
     public Project acceptProposal(Long projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
-        project.accept();// change status to PERMIT_ISSUED
-
+        project.accept();
         notificationService.notifyProviderAboutDecision(project);
         notificationService.notifyResidentsAboutProject(project, ProjectEvent.STATUS_CHANGED);
-
         return projectRepository.save(project);
     }
 
@@ -104,11 +104,11 @@ public class ProjectService {
         notificationService.notifyProviderAboutDecision(project);
         return projectRepository.save(project);
     }
- 
+
     @Transactional
     public Project startWork(Long projectId, String providerCompanyNumber) {
         Project project = findAndCheckOwnership(projectId, providerCompanyNumber);
-        project.startWork(); // change status to IN_PROGRESS
+        project.startWork();
         notificationService.notifyResidentsAboutProject(project, ProjectEvent.STATUS_CHANGED);
         return projectRepository.save(project);
     }
@@ -132,9 +132,8 @@ public class ProjectService {
     @Transactional
     public Project completeWork(Long projectId, String providerCompanyNumber, Double actualCost) {
         Project project = findAndCheckOwnership(projectId, providerCompanyNumber);
-        project.complete(actualCost);   // ✅ passes actualCost to entity
+        project.complete(actualCost);
         notificationService.notifyResidentsAboutProject(project, ProjectEvent.STATUS_CHANGED);
-
         return projectRepository.save(project);
     }
 
@@ -147,64 +146,59 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
+    public List<Project> getProjectsByStatus(ProjectStatus status) {
+        return projectRepository.findByStatus(status);
+    }
+
+    public List<Project> getProjectsByDateRange(LocalDate start, LocalDate end) {
+        return projectRepository.findByProposedStartDateBetween(start, end);
+    }
+
+    public List<Project> getProjectsByNeighbourhood(String neighbourhood) {
+        return projectRepository.findByProblem_Neighbourhood(neighbourhood);
+    }
+
+    public List<Project> getProjectsByStreet(String street) {
+        return projectRepository.findByProblem_Street(street);
+    }
+
+    public List<Project> getProjectsByType(WorkType type) {
+        return projectRepository.findByProblem_Type(type);
+    }
+
+    public List<Project> getProjectsByPriority(Priorite priority) {
+        return projectRepository.findByProblem_PrioriteType(priority);
+    }
+
+    public List<Project> getAllProjects() {
+        return projectRepository.findAll();
+    }
+
+    public List<Project> getMyProjects(String email) {
+        Optional<Resident> residentOpt = residentRepository.findByEmail(email);
+        if (residentOpt.isPresent()) {
+            return projectRepository.findByProblem_Neighbourhood(residentOpt.get().getNeighbourhood());
+        }
+        Optional<Provider> providerOpt = providerRepository.findByEmail(email);
+        if (providerOpt.isPresent()) {
+            return projectRepository.findByProvider_CompanyNumber(providerOpt.get().getCompanyNumber());
+        }
+        return List.of();
+    }
+
+    public List<Project> filterProjects(String neighbourhood, String street,
+                                        WorkType type, Priorite priority,
+                                        ProjectStatus status,
+                                        LocalDate startDate, LocalDate endDate) {
+        return projectRepository.filterProjects(
+                neighbourhood, street, type, priority, status, startDate, endDate);
+    }
+
     private Project findAndCheckOwnership(Long projectId, String providerCompanyNumber) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
         if (!project.getProvider().getCompanyNumber().equals(providerCompanyNumber))
             throw new SecurityException("Provider does not own this project");
         return project;
-    }
-
-    // Add these methods to ProjectService
-
-public List<Project> getProjectsByStatus(ProjectStatus status) {
-    return projectRepository.findByStatus(status);
-}
-
-public List<Project> getProjectsByDateRange(LocalDate start, LocalDate end) {
-    return projectRepository.findByProposedStartDateBetween(start, end);
-}
-
-public List<Project> getProjectsByNeighbourhood(String neighbourhood) {
-    return projectRepository.findByProblem_Neighbourhood(neighbourhood);
-}
-
-public List<Project> getProjectsByStreet(String street) {
-    return projectRepository.findByProblem_Street(street);
-}
-
-public List<Project> getProjectsByType(WorkType type) {
-    return projectRepository.findByProblem_Type(type);
-}
-
-public List<Project> getProjectsByPriority(String priority) {
-    return projectRepository.findByProblem_PrioriteType(Priorite.valueOf(priority));
-}
-
-public List<Project> getAllProjects() {
-    return projectRepository.findAll();
-}
-
-public List<Project> getMyProjects(String email) {
-    var residentOpt = residentRepository.findByEmail(email);
-    if (residentOpt.isPresent()) {
-        Resident resident = residentOpt.get();
-        return projectRepository.findByProblem_Neighbourhood(resident.getNeighbourhood());
-    }
-    var providerOpt = providerRepository.findByEmail(email);
-    if (providerOpt.isPresent()) {
-        Provider provider = providerOpt.get();
-        return projectRepository.findByProvider_CompanyNumber(provider.getCompanyNumber());
-    }
-    return List.of();
-}
-
-public List<Project> filterProjects(String neighbourhood, String street,
-                                        WorkType type, Priorite priority,
-                                        ProjectStatus status,
-                                        LocalDate startDate, LocalDate endDate) {
-        return projectRepository.filterProjects(
-            neighbourhood, street, type, priority, status, startDate, endDate
-        );
     }
 }
