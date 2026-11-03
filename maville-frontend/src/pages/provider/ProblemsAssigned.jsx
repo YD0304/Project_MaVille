@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Problems } from '../../components/Problems';
+import Problems from '../../components/Problems';
 import AppLayout from '../../layouts/AppLayout';
 
 const ProblemsAssigned = () => {
@@ -12,5 +12,4 @@ const ProblemsAssigned = () => {
     </AppLayout>
   );
 };
-
 export default ProblemsAssigned;   // ← default export

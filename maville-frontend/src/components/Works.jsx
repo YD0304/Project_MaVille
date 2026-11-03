@@ -47,7 +47,7 @@ const statusLabels = {
   PROPOSAL_REFUSED: 'Refusé'
 };
 
-export function Works() {
+export default function Works() {
   const [filters, setFilters] = useState({
     street: '',
     neighbourhood: '',
@@ -103,8 +103,11 @@ export function Works() {
   };
 
   return (
-    <div className="resident-project-list">
-      <h2>Projets dans Montréal</h2>
+    <div>
+      <div className="page-header">
+        <h2>Projets à Montréal</h2>
+        <p>Consultez les travaux en cours et à venir, filtrez par critères</p>
+      </div>
       <div className="filters">
         <input
           type="text"
@@ -122,7 +125,7 @@ export function Works() {
           value={filters.type}
           onChange={e => handleFilterChange('type', e.target.value)}
         >
-          <option value="">Tous les types de travaux</option>
+          <option value="">Tous les types</option>
           {workTypes.map(type => (
             <option key={type} value={type}>{workTypeLabels[type] || type}</option>
           ))}
@@ -136,28 +139,25 @@ export function Works() {
             <option key={p} value={p}>{priorityLabels[p] || p}</option>
           ))}
         </select>
-
-        {/* Sélecteur de statut : permet de choisir soit "En cours", soit "À venir", soit tous */}
         <select
           value={filters.status}
           onChange={e => handleFilterChange('status', e.target.value)}
         >
           <option value="">Tous les statuts</option>
-          <option value="PROJECT_ONGOING">En cours (PROJECT_ONGOING)</option>
-          <option value="PERMIT_ISSUED">À venir (PERMIT_ISSUED)</option>
+          <option value="PROJECT_ONGOING">En cours</option>
+          <option value="PERMIT_ISSUED">À venir</option>
         </select>
-
-        <button onClick={resetFilters} disabled={loading}>
+        <button className="btn btn-ghost" onClick={resetFilters} disabled={loading}>
           Réinitialiser
         </button>
       </div>
 
-      {loading && <div>Chargement...</div>}
-      {error && <div>Erreur : {error.message}</div>}
+      {loading && <div className="empty">Chargement…</div>}
+      {error && <div className="empty" style={{ color: 'var(--color-error)' }}>Erreur : {error.message}</div>}
       {!loading && !error && (
         <div className="project-grid">
           {projects.length === 0 ? (
-            <p>Aucun projet ne correspond aux critères.</p>
+            <div className="empty">Aucun projet ne correspond aux critères.</div>
           ) : (
             projects.map(project => <ProjectCard key={project.id} project={project} />)
           )}

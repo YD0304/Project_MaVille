@@ -68,7 +68,6 @@ export default function ReportProblem() {
       description: form.description,
       residentId: user.id, // ou residentId: user?.id, selon votre backend
     };
-    console.log('[DEBUG] Payload :', payload);
     try {
       const result = await api.reportProblem(payload);
       if (result) {

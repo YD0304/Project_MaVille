@@ -6,7 +6,6 @@ export default function WorksPage() {
   return (
     <AppLayout>
       <div>
-        <h1>Works Filter</h1>
         <Works />
       </div>
     </AppLayout>

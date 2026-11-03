@@ -19,7 +19,7 @@ const priorityLabels = {
   REFUSED: 'Refusé',
 };
 
-export function ProblemCard({ problem, actions }) {
+export default function ProblemCard({ problem, actions }) {
   const typeLabel = problemTypeLabels[problem.type] || problem.type;
   const priorityLabel = priorityLabels[problem.prioriteType] || problem.prioriteType || 'Non définie';
 
@@ -37,7 +37,7 @@ export function ProblemCard({ problem, actions }) {
         <p><strong>Date :</strong> {problem.reportTime ? new Date(problem.reportTime).toLocaleDateString('fr-CA') : 'N/A'}</p>
         {problem.status && <p><strong>Statut :</strong> {problem.status}</p>}
       </div>
-      {actions && <div style={{ padding: '0.75rem' }}>{actions}</div>}
+      {actions && <div className="project-actions">{actions}</div>}
     </div>
   );
 }

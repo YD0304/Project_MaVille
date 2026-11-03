@@ -37,9 +37,6 @@ export default function ProviderProjects() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  console.log('Full user object:', user);
-console.log('Company number:', user?.companyNumber);
-
   // Inside fetchMyProjects
 const fetchMyProjects = useCallback(async () => {
   if (!user?.id) return;   // ← changed from user?.companyNumber
@@ -86,7 +83,6 @@ const fetchMyProjects = useCallback(async () => {
 // --- Reusable card (similar to Works.jsx but with modify actions) ---
 function ProjectCard({ project, onUpdate }) {
   const { user } = useAuth();
-  console.log('Provider company number:', user?.companyNumber);
   const [editing, setEditing] = useState(false);
   const [newDescription, setNewDescription] = useState(project.description || '');
   const [newEndDate, setNewEndDate] = useState(project.proposedEndDate || '');
@@ -158,37 +154,37 @@ function ProjectCard({ project, onUpdate }) {
 
       {/* Modification panel – only if project is not finished/refused */}
       {project.status !== 'PROJECT_FINISHED' && project.status !== 'PROPOSAL_REFUSED' && (
-        <div className="modify-actions">
-          <button onClick={() => setEditing(!editing)} disabled={updating}>
+        <div className="project-actions">
+          <button className="btn btn-ghost" onClick={() => setEditing(!editing)} disabled={updating} style={{ width: '100%' }}>
             {editing ? 'Annuler' : 'Modifier le projet'}
           </button>
 
           {editing && (
-            <div style={{ marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div>
-                <label>Nouvelle description :</label>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '0.25rem', display: 'block' }}>Description</label>
                 <textarea
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                   rows={2}
-                  style={{ width: '100%' }}
+                  className="input"
                 />
-                <button onClick={handleUpdateDescription} disabled={updating}>Enregistrer description</button>
+                <button className="btn btn-primary btn-sm" onClick={handleUpdateDescription} disabled={updating} style={{ marginTop: '0.375rem', width: '100%' }}>Enregistrer</button>
               </div>
               <div>
-                <label>Nouvelle date de fin :</label>
-                <input
-                  type="date"
-                  value={newEndDate}
-                  onChange={(e) => setNewEndDate(e.target.value)}
-                />
-                <button onClick={handleUpdateEndDate} disabled={updating}>Modifier date</button>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '0.25rem', display: 'block' }}>Date de fin</label>
+                <div className="project-actions-row">
+                  <input type="date" value={newEndDate} onChange={(e) => setNewEndDate(e.target.value)} className="input" />
+                  <button className="btn btn-primary btn-sm" onClick={handleUpdateEndDate} disabled={updating}>OK</button>
+                </div>
               </div>
               <div>
-                <label>Changer le statut :</label>
-                <button onClick={() => handleStatusChange('start')} disabled={updating}>Commencer</button>
-                <button onClick={() => handleStatusChange('delay')} disabled={updating}>Signaler un retard</button>
-                <button onClick={() => handleStatusChange('complete')} disabled={updating}>Terminer</button>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '0.375rem', display: 'block' }}>Statut</label>
+                <div className="project-actions-row" style={{ flexWrap: 'wrap' }}>
+                  <button className="btn btn-success btn-sm" onClick={() => handleStatusChange('start')} disabled={updating}>Commencer</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => handleStatusChange('delay')} disabled={updating}>Retard</button>
+                  <button className="btn btn-primary btn-sm" onClick={() => handleStatusChange('complete')} disabled={updating}>Terminer</button>
+                </div>
               </div>
             </div>
           )}

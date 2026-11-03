@@ -16,20 +16,20 @@ import ca.udem.maville.model.Priorite;
 import ca.udem.maville.model.Problem;
 import ca.udem.maville.model.Resident;
 import ca.udem.maville.repository.ResidentRepository;
-import ca.udem.maville.services.ServiceProblem;
+import ca.udem.maville.services.ProblemService;
 
 @RestController
 @RequestMapping("/api/problems")
 public class ProblemController {
 
-    private final ServiceProblem serviceProblem;
+    private final ProblemService problemService;
     private final ResidentRepository residentRepository;
 
     // FIX 1: ResidentRepository must be injected — it is required by reportProblem()
     //         to look up the Resident from the incoming residentId.
-    public ProblemController(ServiceProblem serviceProblem,
+    public ProblemController(ProblemService problemService,
                              ResidentRepository residentRepository) {
-        this.serviceProblem = serviceProblem;
+        this.problemService = problemService;
         this.residentRepository = residentRepository;
     }
 
@@ -52,7 +52,7 @@ public class ProblemController {
             return ResponseEntity.badRequest().build();
         }
 
-        Problem saved = serviceProblem.reportProblem(
+        Problem saved = problemService.reportProblem(
                 resident,
                 req.getNeighbourhood(),
                 req.getStreet(),
@@ -69,7 +69,7 @@ public class ProblemController {
      */
     @GetMapping("/my_reported_problems")
     public ResponseEntity<List<Problem>> viewMyProblems(@RequestParam Long residentId) {
-        return ResponseEntity.ok(serviceProblem.viewMyProblems(residentId));
+        return ResponseEntity.ok(problemService.viewMyProblems(residentId));
     }
 
     /**
@@ -79,7 +79,7 @@ public class ProblemController {
      */
     @GetMapping("/all_reported_problems")
     public ResponseEntity<List<Problem>> viewAllProblems() {
-        return ResponseEntity.ok(serviceProblem.viewAllProblems());
+        return ResponseEntity.ok(problemService.viewAllProblems());
     }
 
     /**
@@ -89,7 +89,7 @@ public class ProblemController {
      */
     @GetMapping("/problems_not_assigned")
     public ResponseEntity<List<Problem>> viewProblemsNotAssigned() {
-        return ResponseEntity.ok(serviceProblem.viewProblemsNotAssigned());
+        return ResponseEntity.ok(problemService.viewProblemsNotAssigned());
     }
 
     /**
@@ -99,7 +99,7 @@ public class ProblemController {
      */
     @GetMapping("/problems_assigned")
     public ResponseEntity<List<Problem>> viewProblemsAssigned() {
-        return ResponseEntity.ok(serviceProblem.viewProblemsAssigned());
+        return ResponseEntity.ok(problemService.viewProblemsAssigned());
     }
 
     /**
@@ -113,7 +113,7 @@ public class ProblemController {
             @RequestParam Long signalId,
             @RequestParam Long parentProblemId) {
 
-        Problem result = serviceProblem.linkSignalToProblem(signalId, parentProblemId);
+        Problem result = problemService.linkSignalToProblem(signalId, parentProblemId);
         if (result == null) {
             return ResponseEntity.notFound().build();
         }
@@ -131,7 +131,7 @@ public class ProblemController {
             @RequestParam Long problemId,
             @RequestParam Priorite priorite) {
 
-        Problem result = serviceProblem.assignProblemPriority(problemId, priorite);
+        Problem result = problemService.assignProblemPriority(problemId, priorite);
         if (result == null) {
             return ResponseEntity.notFound().build();
         }

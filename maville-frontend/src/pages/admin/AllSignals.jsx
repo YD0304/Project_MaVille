@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api } from "../../api/api";
-import { ProblemCard } from '../../components/ProblemCard';
+import ProblemCard from '../../components/ProblemCard';
 
-export const AllSignals = () => {
+export default function AllSignals() {
   const [problems, setProblems] = useState([]);
   useEffect(() => { api.getAllProblems().then(setProblems); }, []);
   const stats = { total: problems.length, notAssigned: problems.filter(p => p.prioriteType === 'NOT_ASSIGNED').length, high: problems.filter(p => p.prioriteType === 'HIGH').length };
@@ -17,4 +17,4 @@ export const AllSignals = () => {
       <div className="problem-list">{problems.map(p => <ProblemCard key={p.id} problem={p} />)}</div>
     </div>
   );
-};
+}

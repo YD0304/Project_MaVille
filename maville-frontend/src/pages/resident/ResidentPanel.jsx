@@ -44,29 +44,12 @@ const priorityColors = {
 function StatCard({ icon: Icon, label, value, color, to, navigate }) {
   return (
     <div
-      className="card"
+      style={{ cursor: 'pointer' }}
       onClick={() => navigate(to)}
-      style={{
-        cursor: 'pointer',
-        display: 'flex', alignItems: 'center', gap: '1rem',
-        padding: '1.25rem',
-        transition: 'border-color 0.15s, box-shadow 0.15s',
-      }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.1)'; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.boxShadow = 'none'; }}
     >
-      <div style={{
-        width: '2.75rem', height: '2.75rem', borderRadius: '0.625rem',
-        background: `${color}15`, display: 'flex', alignItems: 'center',
-        justifyContent: 'center', color: color, flexShrink: 0,
-      }}>
-        <Icon size={20} />
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-subtle)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
-        <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0.125rem 0 0', lineHeight: 1.2 }}>{value}</p>
-      </div>
-      <ChevronRight size={16} style={{ color: 'var(--color-text-subtle)', flexShrink: 0 }} />
+      <Icon size={24} color={color} />
+      <p>{label}</p>
+      <p>{value}</p>
     </div>
   );
 }
