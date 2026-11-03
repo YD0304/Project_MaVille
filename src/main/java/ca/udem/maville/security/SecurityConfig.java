@@ -2,7 +2,6 @@ package ca.udem.maville.security;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,7 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -26,11 +24,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    public SecurityConfig(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
+        this.userDetailsService = userDetailsService;
+        this.jwtUtil = jwtUtil;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -40,18 +40,14 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints – use AntPathRequestMatcher for each
-                .requestMatchers(AntPathRequestMatcher.antMatcher("/api/auth/login")).permitAll()
-                .requestMatchers(AntPathRequestMatcher.antMatcher("/api/resident/register")).permitAll()
-                .requestMatchers(AntPathRequestMatcher.antMatcher("/api/provider/register")).permitAll()
-                .requestMatchers(AntPathRequestMatcher.antMatcher("/error")).permitAll()
-                .requestMatchers(AntPathRequestMatcher.antMatcher("/ws/**")).permitAll()
-                // Preflight OPTIONS requests
-                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/**")).permitAll()
-                // Role‑restricted endpoints
-                .requestMatchers(AntPathRequestMatcher.antMatcher("/api/resident/**")).hasRole("RESIDENT")
-                .requestMatchers(AntPathRequestMatcher.antMatcher("/api/provider/**")).hasRole("PROVIDER")
-                // All other requests require authentication
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/resident/register").permitAll()
+                .requestMatchers("/api/provider/register").permitAll()
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/api/resident/**").hasRole("RESIDENT")
+                .requestMatchers("/api/provider/**").hasRole("PROVIDER")
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

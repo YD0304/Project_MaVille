@@ -1,6 +1,9 @@
 package ca.udem.maville.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,9 +24,6 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    /**
-     * Generate a signed JWT containing email (subject), role, and userId claims.
-     */
     public String generateToken(String email, String role, String userId) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);

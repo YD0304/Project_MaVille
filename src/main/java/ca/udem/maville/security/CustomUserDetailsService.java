@@ -1,10 +1,7 @@
 package ca.udem.maville.security;
 
-import ca.udem.maville.model.Provider;
-import ca.udem.maville.model.Resident;
-import ca.udem.maville.repository.ProviderRepository;
-import ca.udem.maville.repository.ResidentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collections;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,21 +9,26 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import ca.udem.maville.model.Provider;
+import ca.udem.maville.model.Resident;
+import ca.udem.maville.repository.ProviderRepository;
+import ca.udem.maville.repository.ResidentRepository;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private ResidentRepository residentRepository;
+    private final ResidentRepository residentRepository;
+    private final ProviderRepository providerRepository;
 
-    @Autowired
-    private ProviderRepository providerRepository;
+    public CustomUserDetailsService(ResidentRepository residentRepository,
+                                    ProviderRepository providerRepository) {
+        this.residentRepository = residentRepository;
+        this.providerRepository = providerRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // Try Resident
-        var residentOpt = residentRepository.findByEmail(email);
+        java.util.Optional<Resident> residentOpt = residentRepository.findByEmail(email);
         if (residentOpt.isPresent()) {
             Resident resident = residentOpt.get();
             return new User(
@@ -36,8 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             );
         }
 
-        // Try Provider
-        var providerOpt = providerRepository.findByEmail(email);
+        java.util.Optional<Provider> providerOpt = providerRepository.findByEmail(email);
         if (providerOpt.isPresent()) {
             Provider provider = providerOpt.get();
             return new User(
