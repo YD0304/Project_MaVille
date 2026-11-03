@@ -8,6 +8,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,14 +22,15 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import ca.udem.maville.model.MontrealAPIWork;
 
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 public class TravauxAPIRepository {
     private static final String BASE_API_URL = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
     private static final String FILE_PATH = "travaux_API.json";
+    private static final Duration CACHE_TTL = Duration.ofHours(1);
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final List<MontrealAPIWork> travaux = new ArrayList<>();
+    private Instant lastFetchedAt = Instant.EPOCH;
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -82,9 +85,9 @@ public class TravauxAPIRepository {
             travaux.clear();
             List<MontrealAPIWork> externes = parseJsonResponseWithJackson(response.body());
             travaux.addAll(externes);
-    
+            lastFetchedAt = Instant.now();
             saveData();
-    
+
             return new ArrayList<>(externes);
     
         } catch (IOException | InterruptedException e) {
@@ -113,7 +116,7 @@ public class TravauxAPIRepository {
     }
 
     public List<MontrealAPIWork> getAllAPIWorks() {
-        if (travaux.isEmpty()) {
+        if (travaux.isEmpty() || Duration.between(lastFetchedAt, Instant.now()).compareTo(CACHE_TTL) > 0) {
             filterTravauxExterneList(null, null);
         }
         return new ArrayList<>(travaux);
