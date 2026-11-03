@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ca.udem.maville.model.Priorite;
 import ca.udem.maville.model.Problem;
 import ca.udem.maville.model.Project;
+import ca.udem.maville.model.ProjectEvent;
 import ca.udem.maville.model.ProjectStatus;
 import ca.udem.maville.model.Provider;
 import ca.udem.maville.model.Resident;
@@ -51,7 +52,7 @@ public class ProjectService {
 
         Project project = new Project(title, description, proposedCost,
                 proposedStartDate, proposedEndDate, problem, providerOpt.get());
-        notificationService.notifyResidentsAboutProject(project, "CREATED");
+        notificationService.notifyResidentsAboutProject(project, ProjectEvent.CREATED);
         notificationService.notifySTPM("New proposal submitted for problem " + problemId, project.getId());
         
         return projectRepository.save(project);
@@ -90,7 +91,7 @@ public class ProjectService {
         project.accept();// change status to PERMIT_ISSUED
 
         notificationService.notifyProviderAboutDecision(project);
-        notificationService.notifyResidentsAboutProject(project, "STATUS_CHANGED");
+        notificationService.notifyResidentsAboutProject(project, ProjectEvent.STATUS_CHANGED);
 
         return projectRepository.save(project);
     }
@@ -108,7 +109,7 @@ public class ProjectService {
     public Project startWork(Long projectId, String providerCompanyNumber) {
         Project project = findAndCheckOwnership(projectId, providerCompanyNumber);
         project.startWork(); // change status to IN_PROGRESS
-        notificationService.notifyResidentsAboutProject(project, "STATUS_CHANGED");
+        notificationService.notifyResidentsAboutProject(project, ProjectEvent.STATUS_CHANGED);
         return projectRepository.save(project);
     }
 
@@ -116,7 +117,7 @@ public class ProjectService {
     public Project delayWork(Long projectId, String providerCompanyNumber) {
         Project project = findAndCheckOwnership(projectId, providerCompanyNumber);
         project.delay();
-        notificationService.notifyResidentsAboutProject(project, "STATUS_CHANGED");
+        notificationService.notifyResidentsAboutProject(project, ProjectEvent.STATUS_CHANGED);
         return projectRepository.save(project);
     }
 
@@ -124,7 +125,7 @@ public class ProjectService {
     public Project resumeWork(Long projectId, String providerCompanyNumber) {
         Project project = findAndCheckOwnership(projectId, providerCompanyNumber);
         project.resume();
-        notificationService.notifyResidentsAboutProject(project, "STATUS_CHANGED");
+        notificationService.notifyResidentsAboutProject(project, ProjectEvent.STATUS_CHANGED);
         return projectRepository.save(project);
     }
 
@@ -132,7 +133,7 @@ public class ProjectService {
     public Project completeWork(Long projectId, String providerCompanyNumber, Double actualCost) {
         Project project = findAndCheckOwnership(projectId, providerCompanyNumber);
         project.complete(actualCost);   // ✅ passes actualCost to entity
-        notificationService.notifyResidentsAboutProject(project, "STATUS_CHANGED");
+        notificationService.notifyResidentsAboutProject(project, ProjectEvent.STATUS_CHANGED);
 
         return projectRepository.save(project);
     }

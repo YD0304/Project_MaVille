@@ -19,8 +19,10 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 
 import ca.udem.maville.model.MontrealAPIWork;
 
-import org.springframework.stereotype.Repository;
-@Repository
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+@Component
 public class TravauxAPIRepository {
     private static final String BASE_API_URL = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
     private static final String FILE_PATH = "travaux_API.json";
@@ -72,21 +74,14 @@ public class TravauxAPIRepository {
                     .build();
     
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-    
-            System.out.println("API Response Body: " + response.body());
-    
+
             if (response.statusCode() != 200) {
                 throw new RuntimeException("External API error: " + response.statusCode());
             }
     
             travaux.clear();
             List<MontrealAPIWork> externes = parseJsonResponseWithJackson(response.body());
-            System.out.println("Number of records parsed: " + externes.size());
-    
-            // La boucle est maintenant plus simple et plus efficace
-            for (MontrealAPIWork t : externes) {
-                travaux.add(t);
-            }
+            travaux.addAll(externes);
     
             saveData();
     
@@ -118,10 +113,13 @@ public class TravauxAPIRepository {
     }
 
     public List<MontrealAPIWork> getAllAPIWorks() {
+        if (travaux.isEmpty()) {
+            filterTravauxExterneList(null, null);
+        }
         return new ArrayList<>(travaux);
     }
 
-    public void supprimerTousLesTravauxExternes() {
+    public void clearAll() {
         travaux.clear();
         saveData();
     }

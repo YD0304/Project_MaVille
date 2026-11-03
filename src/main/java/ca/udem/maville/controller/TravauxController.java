@@ -37,7 +37,7 @@ public class TravauxController {
 
     @DeleteMapping
     public ResponseEntity<Void> deleteAllTravaux() {
-        travauxRepository.supprimerTousLesTravauxExternes();
+        travauxRepository.clearAll();
         return ResponseEntity.noContent().build();
     }
 }

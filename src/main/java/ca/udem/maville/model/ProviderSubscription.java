@@ -36,8 +36,7 @@ public class ProviderSubscription {
         this.subscriptionValue = subscriptionValue;
         this.active = active;
     }
-    
-    // Getters and setters...
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Provider getProvider() { return provider; }
