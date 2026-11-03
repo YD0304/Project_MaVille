@@ -52,7 +52,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        "(:neighbourhood IS NULL OR p.problem.neighbourhood = :neighbourhood) AND " +
        "(:street IS NULL OR p.problem.street = :street) AND " +
        "(:type IS NULL OR p.problem.type = :type) AND " +
-       "(:priority IS NULL OR p.problem.prioriteType = :priority) AND " +   // ← fixed
+       "(:priority IS NULL OR p.problem.prioriteType = :priority) AND " +
        "(:status IS NULL OR p.status = :status) AND " +
        "(:startDate IS NULL OR p.proposedStartDate >= :startDate) AND " +
        "(:endDate IS NULL OR p.proposedEndDate <= :endDate)")

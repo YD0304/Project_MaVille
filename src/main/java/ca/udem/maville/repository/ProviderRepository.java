@@ -10,7 +10,6 @@ import ca.udem.maville.model.Provider;
 @Repository
 public interface ProviderRepository extends JpaRepository<Provider, String> {
     Optional<Provider> findByEmail(String email);
-    //boolean existsByEmail(String email);
-   Optional<Provider> findByCompanyNumber(String companyNumber);
+    Optional<Provider> findByCompanyNumber(String companyNumber);
 
 }

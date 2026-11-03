@@ -15,21 +15,16 @@ import ca.udem.maville.model.WorkType;
 @Repository
 public interface ProblemRepository extends JpaRepository<Problem, Long> {
 
-    // Used by ProblemService.viewMyProblems()
     List<Problem> findByResidentId(Long residentId);
 
-    // Used by ProblemService.viewProblemsNotAssigned()
     List<Problem> findByPrioriteType(Priorite prioriteType);
 
-    // Used by ProblemService.viewProblemsAssigned()
-    //   → all problems that are neither NOT_ASSIGNED nor REFUSED
     List<Problem> findByPrioriteTypeNotAndPrioriteTypeNot(Priorite p1, Priorite p2);
 
-    // Optional filters used by admin / provider views
     @EntityGraph(attributePaths = {"resident"})
     @Query("SELECT p FROM Problem p WHERE p.prioriteType != ca.udem.maville.model.Priorite.NOT_ASSIGNED" +
            " AND (:type IS NULL OR p.type = :type)")
-    List<Problem> findNonAssignedWithFilters(@Param("type") WorkType type);
+    List<Problem> findAssignedWithFilters(@Param("type") WorkType type);
 
     @EntityGraph(attributePaths = {"resident"})
     List<Problem> findByType(WorkType type);
@@ -40,6 +35,4 @@ public interface ProblemRepository extends JpaRepository<Problem, Long> {
     @EntityGraph(attributePaths = {"resident"})
     @Query("SELECT p FROM Problem p WHERE p.resident.email = :email")
     List<Problem> findByResidentEmail(@Param("email") String email);
-
-
 }

@@ -3,11 +3,12 @@ package ca.udem.maville.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import ca.udem.maville.model.AbonnementType;
 import ca.udem.maville.model.ProviderSubscription;
 
-
+@Repository
 public interface ProviderSubscriptionRepository extends JpaRepository<ProviderSubscription, Long> {
     List<ProviderSubscription> findByProvider_CompanyNumber(String companyNumber);
     List<ProviderSubscription> findByTypeAndSubscriptionValue(AbonnementType type, String subscriptionValue);
