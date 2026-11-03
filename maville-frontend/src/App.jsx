@@ -12,9 +12,9 @@ import SubscriptionsPage  from "./pages/SubscriptionsPage";
 
 // admin
 import AdminPanel         from "./pages/admin/AdminPanel";
-import { AllSignals }         from "./pages/admin/AllSignals";
-import { NotAssigned }        from "./pages/admin/NotAssigned";
-import { AssignedProblems }   from "./pages/admin/AssignedProblems";
+import AllSignals         from "./pages/admin/AllSignals";
+import NotAssigned        from "./pages/admin/NotAssigned";
+import AssignedProblems   from "./pages/admin/AssignedProblems";
 import SubmittedProposals from "./pages/admin/SubmittedProposals";
 
 // provider

@@ -15,13 +15,13 @@ import ca.udem.maville.model.WorkType;
 @Repository
 public interface ProblemRepository extends JpaRepository<Problem, Long> {
 
-    // Used by ServiceProblem.viewMyProblems()
+    // Used by ProblemService.viewMyProblems()
     List<Problem> findByResidentId(Long residentId);
 
-    // Used by ServiceProblem.viewProblemsNotAssigned()
+    // Used by ProblemService.viewProblemsNotAssigned()
     List<Problem> findByPrioriteType(Priorite prioriteType);
 
-    // Used by ServiceProblem.viewProblemsAssigned()
+    // Used by ProblemService.viewProblemsAssigned()
     //   → all problems that are neither NOT_ASSIGNED nor REFUSED
     List<Problem> findByPrioriteTypeNotAndPrioriteTypeNot(Priorite p1, Priorite p2);
 

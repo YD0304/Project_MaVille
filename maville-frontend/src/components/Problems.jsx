@@ -22,7 +22,7 @@ const priorityLabels = {
   ELEVEE: 'Élevée'
 };
 
-export function Problems() {
+export default function Problems() {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -86,18 +86,12 @@ function ProblemCard({ problem }) {
         {/* Only show status if the problem has a meaningful status field */}
         {problem.status && <p><strong>Statut :</strong> {problem.status}</p>}
       </div>
-<Button 
-  to={`/provider/create-proposal?problemId=${problem.id}`}
-  style={{
-    margin: '1rem',
-    padding: '0.5rem 1rem',
-    backgroundColor: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '0.375rem',
-    cursor: 'pointer',
-  }}
->
-  Soumettre une proposition
-</Button> </div>);
+<div style={{ padding: '0.75rem' }}>
+  <Button 
+    to={`/provider/create-proposal?problemId=${problem.id}`}
+    className="btn btn-primary btn-sm"
+  >
+    Soumettre une proposition
+  </Button>
+</div> </div>);
 }

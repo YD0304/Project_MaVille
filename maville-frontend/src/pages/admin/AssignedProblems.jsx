@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api } from "../../api/api";
-import { ProblemCard } from '../../components/ProblemCard';
+import ProblemCard from '../../components/ProblemCard';
 
-export const AssignedProblems = () => {
+export default function AssignedProblems() {
   const [problems, setProblems] = useState([]);
   useEffect(() => { api.getAssignedProblems().then(setProblems); }, []);
   return (
@@ -11,4 +11,4 @@ export const AssignedProblems = () => {
       <div className="problem-list">{problems.map(p => <ProblemCard key={p.id} problem={p} />)}</div>
     </div>
   );
-};
+}

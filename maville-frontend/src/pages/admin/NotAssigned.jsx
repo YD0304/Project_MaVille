@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { api } from "../../api/api";
-import { ProblemCard } from '../../components/ProblemCard';
-import { Alert } from '../../components/Alert';
+import ProblemCard from '../../components/ProblemCard';
+import Alert from '../../components/Alert';
 
-export const NotAssigned = () => {
+export default function NotAssigned() {
   const [problems, setProblems] = useState([]);
   const [assignedProblems, setAssignedProblems] = useState([]);
   const [alert, setAlert] = useState(null);
@@ -64,4 +64,4 @@ export const NotAssigned = () => {
       </div>
     </div>
   );
-};
+}

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export const Alert = ({ message, type, onClose }) => {
+export default function Alert({ message, type, onClose }) {
   useEffect(() => {
     if (message) {
       const timer = setTimeout(onClose, 4000);
@@ -16,4 +16,4 @@ export const Alert = ({ message, type, onClose }) => {
       {message}
     </div>
   );
-};
+}

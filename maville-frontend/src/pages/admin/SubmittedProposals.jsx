@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from "../../api/api";
-import { Alert } from '../../components/Alert';
+import Alert from '../../components/Alert';
 
 const statusLabels = {
   PROPOSAL_SUBMITTED: 'Soumise',
@@ -66,8 +66,8 @@ export default function SubmittedProposals() {
               <p><strong>Statut :</strong> <span className={`status-${p.status}`}>{statusLabels[p.status] || p.status}</span></p>
             </div>
             {p.status === 'PROPOSAL_SUBMITTED' && (
-              <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="project-actions">
+                <div className="project-actions-row">
                   <button className="btn btn-success btn-sm" onClick={() => handleAccept(p.id)}>
                     Accepter
                   </button>
@@ -75,20 +75,18 @@ export default function SubmittedProposals() {
                     Refuser
                   </button>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <input
-                    style={{ flex: 1, padding: '0.375rem 0.5rem', fontSize: '0.8125rem' }}
-                    placeholder="Motif du refus (obligatoire)"
-                    value={rejectReason[p.id] || ''}
-                    onChange={e => setRejectReason(prev => ({ ...prev, [p.id]: e.target.value }))}
-                  />
-                </div>
+                <input
+                  className="input"
+                  placeholder="Motif du refus (obligatoire)"
+                  value={rejectReason[p.id] || ''}
+                  onChange={e => setRejectReason(prev => ({ ...prev, [p.id]: e.target.value }))}
+                />
               </div>
             )}
             {p.rejectionReason && (
-              <p style={{ marginTop: '0.5rem', color: '#dc2626', fontSize: '0.8125rem' }}>
-                <strong>Motif du refus :</strong> {p.rejectionReason}
-              </p>
+              <div className="project-actions">
+                <p className="project-rejection"><strong>Motif du refus :</strong> {p.rejectionReason}</p>
+              </div>
             )}
           </div>
         ))}
